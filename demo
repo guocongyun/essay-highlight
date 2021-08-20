@@ -40,13 +40,12 @@ from http.client import HTTPResponse, RemoteDisconnected
 # docker things. We use this prefix to ensure that.
 prefix = "allennlp-demo-"
 api_prefix = f"{prefix}api-"
-
+posix = False
 # The name of the docker network used by this script.
 network = "allennlp-demo"
 
 # The path to the directory this script lives in.
 root = Path(__file__).parent.resolve()
-
 class Paths:
     """
     This class provides access to a series of directories in the repository used throughout
@@ -162,7 +161,23 @@ class Container:
         Builds the container.
         """
         printLnFlush(f"Building {self.cid}")
-        bp = subprocess.run(shlex.split(self.build_cmd()))
+        # print("???-")
+        # tmp = list(self.build_cmd())
+        # for idx, char in enumerate(tmp):
+        #     if char == "\\": tmp[idx] = "/"
+        # tmp = "".join(tmp)
+        tmp = shlex.split(self.build_cmd(), posix=posix)
+        tmp.append("--network")
+        tmp.append("host")
+        print(tmp)
+        # print(tmp)
+        # tmp[3] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\api\\Dockerfile'
+        # tmp[-1] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\api'
+        # tmp[3] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui\\Dockerfile.dev'
+        # tmp[-1] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui'
+        # print(tmp)
+        bp = subprocess.run(tmp)
+        # print("???-")
         if bp.returncode != 0:
             printLnFlush("Error")
             raise BuildError(self.cid)
@@ -185,8 +200,23 @@ class Container:
         printFlush(f"Starting {self.cid}")
         create_network()
 
+        print(self.start_cmd())
+        tmp = shlex.split(self.start_cmd(), posix=posix)
+        # print(tmp)
+        # tmp[10] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\run\\proxy:/etc/nginx/conf.d'
+        # print(tmp)
+
+        # tmp[10] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui\\public:/ui/public'
+        # tmp[12] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui\\src:/ui/src'
+
+        # tmp[10] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui\\public:/ui/public'
+        # tmp[12] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\ui\\src:/ui/src'
+        # tmp[3] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\api\\Dockerfile'
+        # tmp[-1] = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\api'
+        # print(tmp)
+
         p = subprocess.Popen(
-            shlex.split(self.start_cmd()),
+            tmp,
             start_new_session=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -259,6 +289,9 @@ class Container:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
+        print(self.healthcheck_url())
+        print(shlex.split(f"docker exec {self.fqn} curl --fail {self.healthcheck_url()}"))
+        print(p)
         return p.returncode == 0
 
     def status(self) -> Status:
@@ -279,6 +312,7 @@ class Container:
         stdout.
         """
         follow_arg = "--follow" if follow else ""
+        print(shlex.split(f"docker logs {follow_arg} {self.fqn}"))
         subprocess.check_call(shlex.split(f"docker logs {follow_arg} {self.fqn}"))
 
     @staticmethod
@@ -390,7 +424,9 @@ class APIEndpoint(Container):
     def __init__(self, cid: str):
         super().__init__(cid)
         self.path = paths.api_modules / cid
+        # self.path = 'D:\\QA\\AIED_2021_TRMRC_code-main\\allennlp-demo\\api\\allennlp_demo\\bidaf\\model.json'
         with open(self.path / "model.json", "r") as fh:
+        # with open(self.path, "r") as fh:
             conf = json.load(fh)
             self.model_id = conf["id"]
             self.fqn = f"{api_prefix}{self.model_id}"
@@ -718,7 +754,11 @@ def start(args: argparse.Namespace):
             if container.status() == Status.UP:
                 printLnFlush(f"Container {cid} is already running.")
                 continue
+            # print("???")
+            # print(cid)
+            # print("???")
             container.build()
+            # print("???")
             container.start()
         proxy = Proxy()
         proxy.print_routes(proxy.upstart())

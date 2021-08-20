@@ -110,11 +110,11 @@ const DemoLayout = (props: { children: React.ReactNode | JSX.Element }) => {
     return (
         <Layout bgcolor="white">
             <Header>
-                <HeaderColumnsWithSpace columns="auto 1fr">
+                {/* <HeaderColumnsWithSpace columns="auto 1fr">
                     <Header.Logo href="http://www.allennlp.org/">
                         <Logo width="147px" height="26px" alt="AllenNLP" />
                     </Header.Logo>
-                </HeaderColumnsWithSpace>
+                </HeaderColumnsWithSpace> */}
             </Header>
             <Layout>
                 <Menu items={demosByGroup} />
@@ -125,12 +125,12 @@ const DemoLayout = (props: { children: React.ReactNode | JSX.Element }) => {
             </Layout>
         </Layout>
     );
-};
+// };
 
-const Logo = styled.img.attrs({
-    src: allenNlpLogo,
-})``;
+// const Logo = styled.img.attrs({
+//     src: allenNlpLogo,
+// })``;
 
-const HeaderColumnsWithSpace = styled(Header.Columns)`
-    padding: ${({ theme }) => theme.spacing.md} 0;
-`;
+// const HeaderColumnsWithSpace = styled(Header.Columns)`
+//     padding: ${({ theme }) => theme.spacing.md} 0;
+// `;

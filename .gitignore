@@ -68,3 +68,6 @@ typings/
 
 # docker build context
 *.tar.gz
+
+# models
+api/allennlp_demo/common/qa_models/*

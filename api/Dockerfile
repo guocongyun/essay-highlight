@@ -1,6 +1,6 @@
 # This is the common Dockerfile that is used to build all demos unless the demo
 # overrides this with its own Dockerfile in its directory.
-FROM python:3.8
+FROM python:3.8-buster
 
 # Ensure allennlp_demo module can be found by Python.
 ENV PYTHONPATH /app/

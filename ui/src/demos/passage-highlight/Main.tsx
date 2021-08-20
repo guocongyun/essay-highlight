@@ -1,0 +1,69 @@
+import React from 'react';
+import Tabs from 'antd/es/tabs';
+import {
+    SelectedModelCard,
+    Output,
+    Field,
+    Saliency,
+    SelectExample,
+    SelectModelAndDescription,
+    Share,
+    Submit,
+    TaskDescription,
+    TaskTitle,
+} from '@allenai/tugboat/components';
+
+import { AppId } from '../../AppId';
+import { TaskDemo, Predict, Interpreters, Attackers } from '../../components';
+import { config } from './config';
+import { Usage } from './Usage';
+import { Predictions } from './Predictions';
+import { Input, Prediction, getBasicAnswer, isWithTokenizedInput, Version } from './types';
+import { InterpreterData, DoubleGradInput, isDoubleInterpreterData } from '../../lib';
+
+export const Main = () => {
+    return (
+        <TaskDemo ids={config.modelIds} taskId={config.taskId}>
+            <TaskTitle />
+            <TaskDescription />
+            <SelectModelAndDescription />
+            <Tabs>
+                <Tabs.TabPane tab="Demo" key="Demo">
+                    <SelectExample displayProp="question" placeholder="Select a Question…" />
+                    <Predict<Input, Prediction>
+                        version={Version}
+                        fields={
+                            <>
+                                <Field.Passage />
+                                <Field.Question />
+                                <Submit>Run Model</Submit>
+                            </>
+                        }>
+                        {({ input, model, output }) => (
+                            <Output>
+                                <Output.Section
+                                    title="Model Output"
+                                    extra={
+                                        <Share.ShareButton
+                                            doc={input}
+                                            slug={Share.makeSlug(input.question)}
+                                            type={Version}
+                                            app={AppId}
+                                        />
+                                    }>
+                                    <Predictions input={input} model={model} output={output} />
+                                </Output.Section>
+                            </Output>
+                        )}
+                    </Predict>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Model Card" key="Card">
+                    <SelectedModelCard />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Model Usage" key="Usage">
+                    <Usage />
+                </Tabs.TabPane>
+            </Tabs>
+        </TaskDemo>
+    );
+};
