@@ -167,12 +167,12 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
         input_dict, all_inputs = self.preprocess(question, contexts)
         ouputs = self.model2(**input_dict)
         answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
-        line_break = " "*50
         return {
 #   "best_span": [],
   "best_span_str": [ans['text'] for ans in answer[:5]],
   "question": question,
-  "context": line_break.join(contexts),
+  "context": contexts,
+  "answer": "\n".join([ans['text'] for ans in answer[:5]]),
 #   "passage_question_attention": [],
 #   "passage_tokens": [],
 #   "question_tokens": [],

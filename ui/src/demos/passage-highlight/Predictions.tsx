@@ -81,7 +81,7 @@ const OutputByModel = ({
 const BasicAnswer = ({ output }: { output: Prediction }) => {
     return (
         <Output.SubSection title="Answer">
-            <div>{getBasicAnswer(output)}</div>
+            <div style={{whiteSpace:"pre"}}>{getBasicAnswer(output)}</div>
         </Output.SubSection>
     );
 };
@@ -98,13 +98,13 @@ const BasicPrediction = ({
     var start = 0;
     var highlightSpans = [];
     var hasBestSpan = false
-    for (var span of output.best_span_str) {
-        var start = input.passage.indexOf(span);
-        var highlightSpan = [start, start + span.length];
-        var hasBestSpan = span !== '';
+    for (var i = 0; i < output.best_span_str.length; i ++) {
+        var start = output.context[i].indexOf(output.best_span_str[i]);
+        var highlightSpan = [start, start + output.best_span_str[i].length];
+        var hasBestSpan = output.best_span_str[i] !== '';
         if (hasBestSpan && (highlightSpan[0] < 0 || highlightSpan[1] <= highlightSpan[0])) {
             throw new InvalidModelResponseError(
-                `"${span}" does not exist in the passage.`
+                `"${output.best_span_str[i]}" does not exist in the passage.`
             );
         }
         highlightSpans.push(
@@ -119,17 +119,28 @@ const BasicPrediction = ({
             <BasicAnswer output={output} />
 
             <Output.SubSection title="Passage Context" >
-                {hasBestSpan ? (
-                    <TextWithHighlight style={{whiteSpace: 'pre-line'}}
-                        text={output.context}
-                        highlights={
-                            highlightSpans
-                        }
-                    />
+                {/* {hasBestSpan ? (
 
                 ) : (
                     <div>{output.question}</div>
+                )
+                } */}
+                {output.context.map((context, idx) => 
+                    <TextWithHighlight
+                        text={context}
+                        highlights={
+                            [highlightSpans[idx]]
+                        }
+                    />
                 )}
+            
+            {/* // for (var i = 0; i < output.contexts.length; i++){
+            //     <TextWithHighlight
+            //         text={output.context}
+            //         highlights={
+            //             highlightSpans
+            //         }
+            //     />} */}
             </Output.SubSection>
 
             <Output.SubSection title="Question">

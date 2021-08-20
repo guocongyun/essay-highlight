@@ -23,6 +23,7 @@ export interface BiDAFPrediction extends WithTokenizedInput {
     best_span_str: string[];
     context: string[];
     question: string;
+    answer: string;
     // passage_question_attention: number[][];
     // span_end_logits: number[];
     // span_end_probs: number[];
@@ -224,7 +225,7 @@ export const isPrediction = (pred: Prediction): pred is Prediction => {
 export const getBasicAnswer = (pred: Prediction): number | string | string[] => {
     const noAnswer = 'Answer not found.';
     if (isBiDAFPrediction(pred) || isTransformerQAPrediction(pred)) {
-        return pred.best_span_str || noAnswer;
+        return pred.answer || noAnswer;
     }
     if (isNAQANetPredictionSpan(pred) || isNAQANetPredictionArithmetic(pred)) {
         return pred.answer.value || noAnswer;
