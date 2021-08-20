@@ -1,8 +1,3 @@
-<div align="center">
-    <img src="https://raw.githubusercontent.com/allenai/allennlp/main/docs/img/allennlp-logo-dark.png" width="400"/>
-    <hr/>
-</div>
-
 ## Getting Started
 
 By default the demo will send requests to API endpoints running in production. If you'd like to 

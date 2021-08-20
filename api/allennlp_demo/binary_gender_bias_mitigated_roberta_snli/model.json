@@ -1,6 +1,0 @@
-{
-    "id": "bin-gender-bias-mitigated-roberta-snli",
-    "pretrained_model_id": "pair-classification-binary-gender-bias-mitigated-roberta-snli",
-    "attackers": [],
-    "interpreters": []
-}

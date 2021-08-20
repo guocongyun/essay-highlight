@@ -1,6 +1,0 @@
-{
-    "id": "roberta-mnli",
-    "pretrained_model_id": "pair-classification-roberta-mnli",
-    "attackers": [],
-    "interpreters": []
-}

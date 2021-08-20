@@ -1,6 +1,0 @@
-{
-    "id": "vilbert-vqa",
-    "pretrained_model_id": "vqa-vilbert",
-    "attackers": [],
-    "interpreters": []
-}
