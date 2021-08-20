@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@allenai/eslint-config-varnish@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@allenai/eslint-config-varnish/-/eslint-config-varnish-1.0.4.tgz#61cbd9c0579f1c8e9a2ca52e77c84761a3f8e8db"
-  integrity sha512-6B5KPBjeTDiUQ7rs2NFjdp6DOBDVUjUOeAZqBkxPOpvD6QyD5QnLf7PXsiDnkWqwdzOwOnYFM0SEjm/gEIuysA==
+"@allenai/eslint-config-varnish@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@allenai/eslint-config-varnish/-/eslint-config-varnish-1.0.5.tgz#bca630990df1b29f73fc7b83d8019a291150b1b4"
+  integrity sha512-FtVl+riHTmz5yxk2zwiUE1jPE+PmiUTzmK/Z0YlfxA9AbbljKC+CIdfmPvOQ8NgbrCotNgmjU5VpQnezIm7CjQ==
 
 "@allenai/tugboat@^2.0.3":
   version "2.0.3"
