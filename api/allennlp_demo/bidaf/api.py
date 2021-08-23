@@ -163,7 +163,7 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
         Returns predictions.
         """
         question = inputs["question"].strip()
-        contexts = [inp.strip() for inp in inputs["passage"].strip().split("\n") if inp.strip() != ""]
+        contexts = [inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
         input_dict, all_inputs = self.preprocess(question, contexts)
         ouputs = self.model2(**input_dict)
         answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
