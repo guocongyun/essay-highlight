@@ -1,7 +1,7 @@
 from functools import lru_cache
 from dataclasses import asdict
 import json
-from typing import Callable, Dict, List
+from typing import Callable, Deque, Dict, List
 
 import os
 import sys
@@ -158,6 +158,20 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
                     best_k=1))
         return ret
 
+    def split_answer(self, answer, max_length=150):
+        answers = []
+        answer = Deque(answer.strip().split(" "))
+        tmp = ""
+        while answer:
+            if len(tmp)+len(answer[0]) > max_length:
+                answers.append(tmp.strip()+"\n")
+                tmp = ""
+            else:
+                tmp += answer.popleft() + " "
+        answers.append(tmp.strip()+"\n")
+        return answers
+
+
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
         Returns predictions.
@@ -169,7 +183,7 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
         answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
         return {
 #   "best_span": [],
-  "best_span_str": [ans['text'] for ans in answer[:5]],
+  "best_span_str": [self.split_answer(ans['text']) for ans in answer[:5]],
   "question": question,
   "context": contexts,
   "answer": "\n".join([ans['text'] for ans in answer[:5]]),

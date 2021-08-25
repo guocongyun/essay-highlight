@@ -6,7 +6,7 @@ import {
     UnexpectedModelError,
     UnexpectedOutputError,
 } from '@allenai/tugboat/error';
-
+import styles from './Highlighter.css'
 import { DebugInfo } from '../../components';
 import { ModelId } from '../../lib';
 import {
@@ -25,6 +25,7 @@ import {
     isNAQANetPredictionArithmetic,
     getBasicAnswer,
 } from './types';
+import Highlighter from "react-highlight-words";
 import { NMNOutput } from './nmn';
 
 interface Props {
@@ -93,54 +94,19 @@ const BasicPrediction = ({
     input: Input;
     output: TransformerQAPrediction | BiDAFPrediction;
 }) => {
-    // Best_span is a span of tokens, we dont render the tokens here,
-    // so we just find the highlightSpan locally.
-    var start = 0;
-    var highlightSpans = [];
-    var hasBestSpan = false
-    for (var i = 0; i < output.best_span_str.length; i ++) {
-        var start = output.context[i].indexOf(output.best_span_str[i]);
-        var highlightSpan = [start, start + output.best_span_str[i].length];
-        var hasBestSpan = output.best_span_str[i] !== '';
-        if (hasBestSpan && (highlightSpan[0] < 0 || highlightSpan[1] <= highlightSpan[0])) {
-            throw new InvalidModelResponseError(
-                `"${output.best_span_str[i]}" does not exist in the passage.`
-            );
-        }
-        highlightSpans.push(
-            {
-                start: highlightSpan[0],
-                end: highlightSpan[1],
-            },
-        )
-    }
+
     return (
         <>
             <BasicAnswer output={output} />
-
             <Output.SubSection title="Passage Context" >
-                {/* {hasBestSpan ? (
-
-                ) : (
-                    <div>{output.question}</div>
-                )
-                } */}
+                
                 {output.context.map((context, idx) => 
-                    <TextWithHighlight
-                        text={context}
-                        highlights={
-                            [highlightSpans[idx]]
-                        }
+                    <Highlighter
+                        searchWords={output.best_span_str[idx]}
+                        autoEscape={true}
+                        textToHighlight={context}
                     />
                 )}
-            
-            {/* // for (var i = 0; i < output.contexts.length; i++){
-            //     <TextWithHighlight
-            //         text={output.context}
-            //         highlights={
-            //             highlightSpans
-            //         }
-            //     />} */}
             </Output.SubSection>
 
             <Output.SubSection title="Question">
