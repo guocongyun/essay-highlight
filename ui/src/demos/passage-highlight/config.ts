@@ -8,6 +8,7 @@ export const config: DemoConfig = {
     order: 1,
     modelIds: [
         ModelId.Bidaf,
+        ModelId.TransformerQA,
     ],
     status: 'active',
     taskId: 'rc',
