@@ -6,7 +6,6 @@ import {
     UnexpectedModelError,
     UnexpectedOutputError,
 } from '@allenai/tugboat/error';
-import styles from './Highlighter.css'
 import { DebugInfo } from '../../components';
 import { ModelId } from '../../lib';
 import {
@@ -25,15 +24,14 @@ import {
     isNAQANetPredictionArithmetic,
     getBasicAnswer,
 } from './types';
-import Highlighter from "react-highlight-words";
 import { NMNOutput } from './nmn';
-
 interface Props {
     input: Input;
     model: Model;
     output: Prediction;
 }
-
+declare var require: any
+var Highlight = require('react-highlighter')
 export const Predictions = ({ input, model, output }: Props) => {
     return (
         <Output.Section>
@@ -43,7 +41,6 @@ export const Predictions = ({ input, model, output }: Props) => {
         </Output.Section>
     );
 };
-
 const OutputByModel = ({
     input,
     output,
@@ -101,11 +98,13 @@ const BasicPrediction = ({
             <Output.SubSection title="Passage Context" >
                 
                 {output.context.map((context, idx) => 
-                    <Highlighter
-                        searchWords={output.best_span_str[idx]}
-                        autoEscape={true}
-                        textToHighlight={context}
-                    />
+                    <Highlight 
+                        search={output.best_span_str[idx]}
+                        matchElement={`font`}
+                        matchStyle={{background:"purple", color:"white" , flexShrink: 1}}
+                        >
+                        {context}
+                    </Highlight>
                 )}
             </Output.SubSection>
 

@@ -56,6 +56,7 @@ export const Main = () => {
                             </Output>
                         )}
                     </Predict>
+                    <MyUploader/>
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="Model Card" key="Card">
                     <SelectedModelCard />
