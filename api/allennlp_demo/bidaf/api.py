@@ -19,6 +19,7 @@ from transformers import (
 from transformers.file_utils import ModelOutput
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
+from transformers.utils.dummy_pt_objects import RETRIBERT_PRETRAINED_MODEL_ARCHIVE_LIST
 from transformers.utils.versions import require_version
 
 from flask import Flask, Request, Response, after_this_request, request, jsonify
@@ -158,20 +159,6 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
                     best_k=1))
         return ret
 
-    def split_answer(self, answer, max_length=150):
-        answers = []
-        answer = Deque(answer.strip().split(" "))
-        tmp = ""
-        while answer:
-            if len(tmp)+len(answer[0]) > max_length:
-                answers.append(tmp.strip()+"\n")
-                tmp = ""
-            else:
-                tmp += answer.popleft() + " "
-        answers.append(tmp.strip()+"\n")
-        return answers
-
-
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
         Returns predictions.
@@ -181,12 +168,13 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
         input_dict, all_inputs = self.preprocess(question, contexts)
         ouputs = self.model2(**input_dict)
         answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
+        answer = [ans['text'] for ans in answer[:5]]
         return {
-#   "best_span": [],
-  "best_span_str": [self.split_answer(ans['text']) for ans in answer[:5]],
+
+  "best_span_str": answer,
   "question": question,
   "context": contexts,
-  "answer": "\n".join([ans['text'] for ans in answer[:5]]),
+  "answer": "\n".join(answer),
 #   "passage_question_attention": [],
 #   "passage_tokens": [],
 #   "question_tokens": [],
