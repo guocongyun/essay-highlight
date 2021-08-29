@@ -26,7 +26,7 @@ import Dropzone from 'react-dropzone-uploader'
 
 const MyUploader = () => {
     // specify upload params and url for your files
-    const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } }
+    const getUploadParams = ({ meta }) => { return { url: 'http://localhost:8080/api/bidaf/upload' } }
     
     // called every time a file's `status` changes
     const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
@@ -38,8 +38,7 @@ const MyUploader = () => {
       <Dropzone
         getUploadParams={getUploadParams}
         onChangeStatus={handleChangeStatus}
-        onSubmit={handleSubmit}
-        accept="image/*,audio/*,video/*"
+        accept="*"
       />
     )
 }

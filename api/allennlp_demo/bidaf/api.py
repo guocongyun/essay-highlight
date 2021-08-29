@@ -172,7 +172,8 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
         return {
 
   "best_span_str": answer,
-  "question": question,
+#   "question": question,
+  "question": self.file.filename,
   "context": contexts,
   "answer": "\n".join(answer),
 #   "passage_question_attention": [],
