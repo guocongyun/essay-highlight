@@ -37,7 +37,8 @@ import numpy as np
 from allennlp_demo.common import config
 from allennlp_demo.common.logs import configure_logging
 from allennlp_demo.common import config, http
-
+import zipfile
+import glob
 
 class RobertaModelEndpoint(http.MyModelEndpoint):
     def __init__(self):
@@ -158,13 +159,25 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
                     rank="score",
                     best_k=1))
         return ret
+    
+    def process_zip(self, file):
+        file = zipfile.ZipFile(f"/tmp/{file.filename}")
+        file.extractall(path="/tmp/zip")
+        files = glob.glob("/tmp/zip/*")
+        contexts = []
+        for fp in files:
+            with open(fp, "r") as f:
+                contexts += [inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
+                # contexts += ["\n--------------------------------------------------------------------------------------------\n"]
+        return contexts
 
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
         Returns predictions.
         """
         question = inputs["question"].strip()
-        contexts = [inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
+        if self.file: contexts = self.process_zip(self.file)
+        else: contexts = [inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
         input_dict, all_inputs = self.preprocess(question, contexts)
         ouputs = self.model2(**input_dict)
         answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
@@ -173,7 +186,7 @@ class RobertaModelEndpoint(http.MyModelEndpoint):
 
   "best_span_str": answer,
 #   "question": question,
-  "question": self.file.filename,
+  "question": question,
   "context": contexts,
   "answer": "\n".join(answer),
 #   "passage_question_attention": [],

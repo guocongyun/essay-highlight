@@ -90,6 +90,7 @@ class MyModelEndpoint:
         # self.interpreters = self.load_interpreters()
         # self.attackers = self.load_attackers()
         self.configure_error_handling()
+        self.file = None
 
         # By creating the LRU caches when the class is instantiated, we can
         # be sure that the caches are specific to the instance, and not the class,
@@ -211,7 +212,7 @@ class MyModelEndpoint:
                 # If the user does not select a file, the browser submits an
                 # empty file without a filename.
                 filename = file.filename
-                file.save(os.path.join("./", filename))
+                file.save(os.path.join("/tmp", filename))
                 self.file = file
             return ""
 
