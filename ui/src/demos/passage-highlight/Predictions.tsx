@@ -79,7 +79,7 @@ const OutputByModel = ({
 const BasicAnswer = ({ output }: { output: Prediction }) => {
     return (
         <Output.SubSection title="Answer">
-            <div style={{whiteSpace:"pre"}}>{getBasicAnswer(output)}</div>
+            <div style={{whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordWrap: 'break-word'}}>{getBasicAnswer(output)}</div>
         </Output.SubSection>
     );
 };
@@ -96,12 +96,11 @@ const BasicPrediction = ({
         <>
             <BasicAnswer output={output} />
             <Output.SubSection title="Passage Context" >
-                
                 {output.context.map((context, idx) => 
                     <Highlight 
                         search={output.best_span_str[idx]}
                         matchElement={`font`}
-                        matchStyle={{background:"purple", color:"white" , flexShrink: 1}}
+                        matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}
                         >
                         {context}
                     </Highlight>
