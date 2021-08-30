@@ -6,13 +6,6 @@ from typing import Callable, Dict
 from flask import Flask, Request, Response, after_this_request, request, jsonify
 from allennlp.version import VERSION
 from allennlp.predictors.predictor import JsonDict
-from allennlp.interpret.saliency_interpreters import (
-    SaliencyInterpreter,
-    SimpleGradient,
-    SmoothGradient,
-    IntegratedGradient,
-)
-from allennlp.interpret.attackers import Attacker, Hotflip, InputReduction
 from transformers import (
     AutoConfig,
     AutoModelForQuestionAnswering,
@@ -91,7 +84,7 @@ class MyModelEndpoint:
     This class can be extended to implement custom functionality.
     """
 
-    def __init__(self, model_path: str, model: config.Model, log_payloads: bool = False):
+    def __init__(self, model: config.Model, log_payloads: bool = False):
         self.model = model
         self.app = Flask(model.id)
         self.configure_logging(log_payloads)
@@ -109,28 +102,20 @@ class MyModelEndpoint:
         self.predict_with_cache = predict_with_cache
 
         self.setup_routes()
-
-        self.max_seq_length = 512
-        self.stride = 128
-        self.pad_on_right = True
-        self.start_weight = 0.5
-        self.nbest = 10
-        self.max_answer_length = 300
-        self.min_answer_length = 5
         self.config = AutoConfig.from_pretrained(
-            model_path,
+            self.model.model_path,
             cache_dir="./cache",
             use_auth_token=None,
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path,
+            self.model.model_path,
             use_fast=True,
             cache_dir="./cache",
             use_auth_token= None,
     #         force_download=True,
         )
         self.model2 = AutoModelForQuestionAnswering.from_pretrained(
-            model_path,
+            self.model.model_path,
             cache_dir="./cache",
             revision="main",
             config=self.config,
@@ -143,14 +128,14 @@ class MyModelEndpoint:
                 question.lower(), 
                 context.lower(), 
                 truncation="only_second",
-                max_length=self.max_seq_length,
-                stride=self.stride,
+                max_length=self.model.max_seq_length,
+                stride=self.model.stride,
                 return_overflowing_tokens=True,
                 return_offsets_mapping=True,
                 padding="max_length")
             for i in range(len(inputs["input_ids"])):
                 sequence_ids = inputs.sequence_ids(i)
-                context_index = 1 if self.pad_on_right else 0
+                context_index = 1 if self.model.pad_on_right else 0
                 inputs["offset_mapping"][i] = [
                     (o if sequence_ids[k] == context_index else None)
                     for k, o in enumerate(inputs["offset_mapping"][i])
@@ -187,12 +172,12 @@ class MyModelEndpoint:
             valid_answers = []
             offset_mapping = all_inputs[idx]["offset_mapping"][0]
             cls_index = inputs["input_ids"].tolist()[idx].index(self.tokenizer.cls_token_id)
-            feature_null_score = start_logits[cls_index]*self.start_weight + end_logits[cls_index]*(1-self.start_weight)
+            feature_null_score = start_logits[cls_index]*self.model.start_weight + end_logits[cls_index]*(1-self.model.start_weight)
             if min_null_score is None or min_null_score < feature_null_score:
                 min_null_score = feature_null_score
 
-            start_indexes = np.argsort(start_logits)[-1 : -self.nbest - 1 : -1].tolist()
-            end_indexes = np.argsort(end_logits)[-1 : -self.nbest - 1 : -1].tolist()
+            start_indexes = np.argsort(start_logits)[-1 : -self.model.nbest - 1 : -1].tolist()
+            end_indexes = np.argsort(end_logits)[-1 : -self.model.nbest - 1 : -1].tolist()
             for start_index in start_indexes:
                 for end_index in end_indexes:
                     if (
@@ -203,15 +188,15 @@ class MyModelEndpoint:
                         or offset_mapping[start_index] is None
                         or offset_mapping[end_index] is None
                         or end_index < start_index 
-                        or end_index - start_index + 1 > self.max_answer_length
-                        or end_index - start_index + 1 < self.min_answer_length
+                        or end_index - start_index + 1 > self.model.max_answer_length
+                        or end_index - start_index + 1 < self.model.min_answer_length
                     ):
                         continue
                     start_char = offset_mapping[start_index][0]
                     end_char = offset_mapping[end_index][1]
                     valid_answers.append(
                         {
-                            "score":(start_logits[start_index]*(self.start_weight) + end_logits[end_index]*(1-self.start_weight)),
+                            "score":(start_logits[start_index]*(self.model.start_weight) + end_logits[end_index]*(1-self.model.start_weight)),
                             "start":start_logits[start_index],
                             "end":end_logits[end_index],
                             "text": contexts[idx][start_char: end_char],
@@ -231,7 +216,6 @@ class MyModelEndpoint:
         for fp in files:
             with open(fp, "r") as f:
                 contexts += [inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
-                # contexts += ["\n--------------------------------------------------------------------------------------------\n"]
         return contexts
 
     def predict(self, inputs: JsonDict) -> JsonDict:
@@ -261,65 +245,12 @@ class MyModelEndpoint:
             #   "token_offsets": []
         }
 
-    def load_interpreters(self) -> Dict[str, SaliencyInterpreter]:
-        """
-        Returns a mapping of interpreters keyed by a unique identifier. Requests to
-        `/interpret/:id` will invoke the interpreter with the provided `:id`. Override this method
-        to add or remove interpreters.
-        """
-        interpreters: Dict[str, SaliencyInterpreter] = {}
-        if "simple_gradient" in self.model.interpreters:
-            interpreters["simple_gradient"] = SimpleGradient(self.predictor)
-        if "smooth_gradient" in self.model.interpreters:
-            interpreters["smooth_gradient"] = SmoothGradient(self.predictor)
-        if "integrated_gradient" in self.model.interpreters:
-            interpreters["integrated_gradient"] = IntegratedGradient(self.predictor)
-        return interpreters
-
-    def load_attackers(self) -> Dict[str, Attacker]:
-        """
-        Returns a mapping of attackers keyed by a unique identifier. Requests to `/attack/:id`
-        will invoke the attacker with the provided `:id`. Override this method to add or remove
-        attackers.
-        """
-        attackers: Dict[str, Attacker] = {}
-        if "hotflip" in self.model.attackers:
-            hotflip = Hotflip(self.predictor)
-            hotflip.initialize()
-            attackers["hotflip"] = hotflip
-        if "input_reduction" in self.model.attackers:
-            attackers["input_reduction"] = InputReduction(self.predictor)
-        return attackers
 
     def info(self) -> str:
         """
         Returns basic information about the model and the version of AllenNLP.
         """
         return jsonify({**asdict(self.model), "allennlp": VERSION})
-
-    def interpret(self, interpreter_id: str, inputs: JsonDict) -> JsonDict:
-        """
-        Interprets the output of a predictor and assigns sailency scores to each, as to find
-        inputs that would change the model's prediction some desired manner.
-        """
-        if interpreter_id not in config.VALID_INTERPRETERS:
-            raise UnknownInterpreterError(interpreter_id)
-        interp = self.interpreters.get(interpreter_id)
-        if interp is None:
-            raise InvalidInterpreterError(interpreter_id)
-        return interp.saliency_interpret_from_json(inputs)
-
-    def attack(self, attacker_id: str, attack: JsonDict) -> JsonDict:
-        """
-        Modifies the input (e.g. by adding or removing tokens) to try to change the model's prediction
-        in some desired manner.
-        """
-        if attacker_id not in config.VALID_ATTACKERS:
-            raise UnknownAttackerError(attacker_id)
-        attacker = self.attackers.get(attacker_id)
-        if attacker is None:
-            raise InvalidAttackerError(attacker_id)
-        return attacker.attack_from_json(**attack)
 
     def configure_logging(self, log_payloads: bool = False) -> None:
         configure_logging(self.app, log_payloads=log_payloads)

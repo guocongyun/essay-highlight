@@ -59,7 +59,46 @@ class Model:
     Some models that run on older versions need to be load differently.
     """
 
-    
+    model_path: str = ""
+    """
+    Location of model's ppytorch bin file
+    """
+
+    max_seq_length: int = 512
+    """
+    Max sequence length of input ids
+    """
+
+    stride: int = 512
+    """
+    The stride used when handling longer than 512 inputs
+    """
+
+    pad_on_right: bool = True
+    """
+    Wether to pad on right or not
+    """
+
+    start_weight: float = 0.5
+    """
+    0 to 1 value for the importance of the start token prediction, will ignore end token if set to 1
+    """
+
+    nbest: int = 10
+    """
+    Number of best start and end token prediction to consider when determining the answer, lowering this reduces prediction time and accuracy
+    """
+
+    max_answer_length: int = 300
+    """
+    Maximum amount of span to consider when giving prediction
+    """
+
+    min_answer_length: int = 5,
+    """
+    Minimum amount of span to consider when giving prediction
+    """
+
 
     @classmethod
     def from_file(cls, path: str) -> "Model":
