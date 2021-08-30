@@ -95,9 +95,6 @@ class MyModelEndpoint:
         self.model = model
         self.app = Flask(model.id)
         self.configure_logging(log_payloads)
-        # self.predictor = model.load_predictor()
-        # self.interpreters = self.load_interpreters()
-        # self.attackers = self.load_attackers()
         self.configure_error_handling()
         self.file = None
 
@@ -109,17 +106,7 @@ class MyModelEndpoint:
         def predict_with_cache(inputs: str) -> JsonDict:
             return self.predict(json.loads(inputs))
 
-        # @lru_cache(maxsize=1024)
-        # def interpret_with_cache(interpreter_id: str, inputs: str) -> JsonDict:
-        #     return self.interpret(interpreter_id, json.loads(inputs))
-
-        # @lru_cache(maxsize=1024)
-        # def attack_with_cache(attacker_id: str, attack: str) -> JsonDict:
-        #     return self.attack(attacker_id, json.loads(attack))
-
         self.predict_with_cache = predict_with_cache
-        # self.interpret_with_cache = interpret_with_cache
-        # self.attack_with_cache = attack_with_cache
 
         self.setup_routes()
 
@@ -147,7 +134,6 @@ class MyModelEndpoint:
             cache_dir="./cache",
             revision="main",
             config=self.config,
-            # use_auth_token=None,
         )
     
     def preprocess(self, question: str, contexts: List[str]) -> Dict:

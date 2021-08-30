@@ -59,6 +59,8 @@ class Model:
     Some models that run on older versions need to be load differently.
     """
 
+    
+
     @classmethod
     def from_file(cls, path: str) -> "Model":
         with open(path, "r") as fh:
@@ -71,13 +73,6 @@ class Model:
                 raw["predictor_name"] = model_card.registered_predictor_name
             out = cls(**raw)
 
-        # Do some validation.
-        for attacker in out.attackers:
-            assert attacker in VALID_ATTACKERS, f"invalid attacker {attacker}"
-        for interpreter in out.interpreters:
-            assert interpreter in VALID_INTERPRETERS, f"invalid interpreter {interpreter}"
-        if out.use_old_load_method:
-            assert out.pretrained_model_id is None
 
         return out
 

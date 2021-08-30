@@ -1,38 +1,6 @@
-from functools import lru_cache
-from dataclasses import asdict
-import json
-from typing import Callable, Deque, Dict, List
-
 import os
-import sys
-from dataclasses import dataclass, field
-from typing import Optional
-
-import datasets
-from datasets import load_dataset, load_metric
-
-from transformers.file_utils import ModelOutput
-from transformers.trainer_utils import get_last_checkpoint
-from transformers.utils import check_min_version
-from transformers.utils.dummy_pt_objects import RETRIBERT_PRETRAINED_MODEL_ARCHIVE_LIST
-from transformers.utils.versions import require_version
-
-from flask import Flask, Request, Response, after_this_request, request, jsonify
-from allennlp.version import VERSION
-from allennlp.predictors.predictor import JsonDict
-from allennlp.interpret.saliency_interpreters import (
-    SaliencyInterpreter,
-    SimpleGradient,
-    SmoothGradient,
-    IntegratedGradient,
-)
-from allennlp.interpret.attackers import Attacker, Hotflip, InputReduction
-import torch
 from allennlp_demo.common import config
-from allennlp_demo.common.logs import configure_logging
 from allennlp_demo.common import config, http
-import zipfile
-import glob
 
 class RobertaModelEndpoint(http.MyModelEndpoint):
     def __init__(self):
