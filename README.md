@@ -23,3 +23,8 @@ Note1: Please unzip qa model in api/bidaf/common/qa_models directory. The unzipp
 
 Note2: The current server was tested on windows. If Run On Linux, Please set the global variable posix in ./demo.py, on line 43, to True.
 
+
+Known issue:
+
+    1) Too large zip file may cause the server to crash
+

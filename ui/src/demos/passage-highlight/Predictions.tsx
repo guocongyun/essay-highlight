@@ -114,148 +114,148 @@ const BasicPrediction = ({
     );
 };
 
-const NaqanetPrediction = ({
-    input,
-    output,
-    model,
-}: {
-    input: Input;
-    output: NAQANetPrediction;
-    model: Model;
-}) => {
-    // NAQANetAnswerType.PassageSpan
-    if (
-        isNAQANetPredictionSpan(output) &&
-        output.answer.answer_type === NAQANetAnswerType.PassageSpan
-    ) {
-        return (
-            <>
-                <BasicAnswer output={output} />
+// const NaqanetPrediction = ({
+//     input,
+//     output,
+//     model,
+// }: {
+//     input: Input;
+//     output: NAQANetPrediction;
+//     model: Model;
+// }) => {
+//     // NAQANetAnswerType.PassageSpan
+//     if (
+//         isNAQANetPredictionSpan(output) &&
+//         output.answer.answer_type === NAQANetAnswerType.PassageSpan
+//     ) {
+//         return (
+//             <>
+//                 <BasicAnswer output={output} />
 
-                <Output.SubSection title="Explanation">
-                    The model decided the answer was in the passage.
-                </Output.SubSection>
+//                 <Output.SubSection title="Explanation">
+//                     The model decided the answer was in the passage.
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Passage Context">
-                    <TextWithHighlight
-                        text={input.passage}
-                        highlights={output.answer.spans.map((s) => {
-                            return {
-                                start: s[0],
-                                end: s[1],
-                            };
-                        })}
-                    />
-                </Output.SubSection>
+//                 <Output.SubSection title="Passage Context">
+//                     <TextWithHighlight
+//                         text={input.passage}
+//                         highlights={output.answer.spans.map((s) => {
+//                             return {
+//                                 start: s[0],
+//                                 end: s[1],
+//                             };
+//                         })}
+//                     />
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Question">
-                    <div>{input.question}</div>
-                </Output.SubSection>
-            </>
-        );
-    }
+//                 <Output.SubSection title="Question">
+//                     <div>{input.question}</div>
+//                 </Output.SubSection>
+//             </>
+//         );
+//     }
 
-    // NAQANetAnswerType.QuestionSpan
-    if (
-        isNAQANetPredictionSpan(output) &&
-        output.answer.answer_type === NAQANetAnswerType.QuestionSpan
-    ) {
-        return (
-            <>
-                <BasicAnswer output={output} />
+//     // NAQANetAnswerType.QuestionSpan
+//     if (
+//         isNAQANetPredictionSpan(output) &&
+//         output.answer.answer_type === NAQANetAnswerType.QuestionSpan
+//     ) {
+//         return (
+//             <>
+//                 <BasicAnswer output={output} />
 
-                <Output.SubSection title="Explanation">
-                    The model decided the answer was in the question.
-                </Output.SubSection>
+//                 <Output.SubSection title="Explanation">
+//                     The model decided the answer was in the question.
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Passage Context">
-                    <div>{input.passage}</div>
-                </Output.SubSection>
+//                 <Output.SubSection title="Passage Context">
+//                     <div>{input.passage}</div>
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Question">
-                    <TextWithHighlight
-                        text={input.question}
-                        highlights={output.answer.spans.map((s) => {
-                            return {
-                                start: s[0],
-                                end: s[1],
-                            };
-                        })}
-                    />
-                </Output.SubSection>
-            </>
-        );
-    }
+//                 <Output.SubSection title="Question">
+//                     <TextWithHighlight
+//                         text={input.question}
+//                         highlights={output.answer.spans.map((s) => {
+//                             return {
+//                                 start: s[0],
+//                                 end: s[1],
+//                             };
+//                         })}
+//                     />
+//                 </Output.SubSection>
+//             </>
+//         );
+//     }
 
-    // NAQANetAnswerType.Count
-    if (isNAQANetPredictionCount(output)) {
-        return (
-            <>
-                <BasicAnswer output={output} />
+//     // NAQANetAnswerType.Count
+//     if (isNAQANetPredictionCount(output)) {
+//         return (
+//             <>
+//                 <BasicAnswer output={output} />
 
-                <Output.SubSection title="Explanation">
-                    The model decided this was a counting problem.
-                </Output.SubSection>
+//                 <Output.SubSection title="Explanation">
+//                     The model decided this was a counting problem.
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Passage Context">
-                    <div>{input.passage}</div>
-                </Output.SubSection>
+//                 <Output.SubSection title="Passage Context">
+//                     <div>{input.passage}</div>
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Question">
-                    <div>{input.question}</div>
-                </Output.SubSection>
-            </>
-        );
-    }
+//                 <Output.SubSection title="Question">
+//                     <div>{input.question}</div>
+//                 </Output.SubSection>
+//             </>
+//         );
+//     }
 
-    // NAQANetAnswerType.Arithmetic
-    if (isNAQANetPredictionArithmetic(output)) {
-        // numbers include all numbers in the context, but we only care about ones that are positive or negative
-        const releventNumbers = (output.answer.numbers || []).filter((n) => n.sign !== 0);
+//     // NAQANetAnswerType.Arithmetic
+//     if (isNAQANetPredictionArithmetic(output)) {
+//         // numbers include all numbers in the context, but we only care about ones that are positive or negative
+//         const releventNumbers = (output.answer.numbers || []).filter((n) => n.sign !== 0);
 
-        return (
-            <>
-                <BasicAnswer output={output} />
+//         return (
+//             <>
+//                 <BasicAnswer output={output} />
 
-                <Output.SubSection title="Explanation">
-                    {releventNumbers.length ? (
-                        <div>
-                            The model used the arithmetic expression{' '}
-                            <ArithmeticEquation
-                                numbersWithSign={releventNumbers}
-                                answer={output.answer.value}
-                                answerAtEnd={true}
-                            />
-                        </div>
-                    ) : (
-                        <div>The model decided this was an arithmetic problem.</div>
-                    )}
-                </Output.SubSection>
+//                 <Output.SubSection title="Explanation">
+//                     {releventNumbers.length ? (
+//                         <div>
+//                             The model used the arithmetic expression{' '}
+//                             <ArithmeticEquation
+//                                 numbersWithSign={releventNumbers}
+//                                 answer={output.answer.value}
+//                                 answerAtEnd={true}
+//                             />
+//                         </div>
+//                     ) : (
+//                         <div>The model decided this was an arithmetic problem.</div>
+//                     )}
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Passage Context">
-                    {releventNumbers.length ? (
-                        <TextWithHighlight
-                            text={input.passage}
-                            highlights={releventNumbers.map((n) => {
-                                return {
-                                    start: n.span[0],
-                                    end: n.span[1],
-                                    color: n.sign > 0 ? 'G6' : 'R6',
-                                };
-                            })}
-                        />
-                    ) : (
-                        <div>{input.passage}</div>
-                    )}
-                </Output.SubSection>
+//                 <Output.SubSection title="Passage Context">
+//                     {releventNumbers.length ? (
+//                         <TextWithHighlight
+//                             text={input.passage}
+//                             highlights={releventNumbers.map((n) => {
+//                                 return {
+//                                     start: n.span[0],
+//                                     end: n.span[1],
+//                                     color: n.sign > 0 ? 'G6' : 'R6',
+//                                 };
+//                             })}
+//                         />
+//                     ) : (
+//                         <div>{input.passage}</div>
+//                     )}
+//                 </Output.SubSection>
 
-                <Output.SubSection title="Question">
-                    <div>{input.question}</div>
-                </Output.SubSection>
-            </>
-        );
-    }
+//                 <Output.SubSection title="Question">
+//                     <div>{input.question}</div>
+//                 </Output.SubSection>
+//             </>
+//         );
+//     }
 
-    // payload matched no known viz
-    throw new InvalidModelResponseError(model.id);
-};
+//     // payload matched no known viz
+//     throw new InvalidModelResponseError(model.id);
+// };

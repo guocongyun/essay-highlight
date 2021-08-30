@@ -48,25 +48,22 @@ export const isBiDAFPrediction = (pred: Prediction): pred is BiDAFPrediction => 
 };
 
 export interface TransformerQAPrediction {
-    best_span: number[]; // index into the token list
-    best_span_scores: number;
-    best_span_str: string;
-    context_tokens: string[];
-    id: string;
-    span_end_logits: number[];
-    span_start_logits: number[];
+    best_span_str: string[];
+    context: string[];
+    question: string;
+    answer: string;
 }
 
 export const isTransformerQAPrediction = (pred: Prediction): pred is TransformerQAPrediction => {
     const typedPred = pred as TransformerQAPrediction;
     return (
-        typedPred.best_span !== undefined &&
-        typedPred.best_span_scores !== undefined &&
-        typedPred.best_span_str !== undefined &&
-        typedPred.context_tokens !== undefined &&
-        typedPred.id !== undefined &&
-        typedPred.span_end_logits !== undefined &&
-        typedPred.span_start_logits !== undefined
+        // typedPred.best_span !== undefined &&
+        // typedPred.best_span_scores !== undefined &&
+        typedPred.best_span_str !== undefined
+        // typedPred.context_tokens !== undefined &&
+        // typedPred.id !== undefined &&
+        // typedPred.span_end_logits !== undefined &&
+        // typedPred.span_start_logits !== undefined
     );
 };
 

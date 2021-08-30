@@ -9,6 +9,7 @@ export const config: DemoConfig = {
     modelIds: [
         ModelId.Bidaf,
         ModelId.TransformerQA,
+        ModelId.Roberta
     ],
     status: 'active',
     taskId: 'rc',

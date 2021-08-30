@@ -1,5 +1,6 @@
 export enum ModelId {
     Bidaf = 'bidaf',
+    Roberta = 'roberta',
     BidafELMO = 'bidaf-elmo',
     ConstituencyParser = 'constituency-parser',
     CoreferenceResolution = 'coreference-resolution',

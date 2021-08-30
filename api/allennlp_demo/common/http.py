@@ -231,18 +231,9 @@ class MyModelEndpoint:
         answer = [ans['text'] for ans in answer[:5]]
         return {
             "best_span_str": answer,
-            #   "question": question,
             "question": question,
             "context": contexts,
             "answer": "\n".join(answer),
-            #   "passage_question_attention": [],
-            #   "passage_tokens": [],
-            #   "question_tokens": [],
-            #   "span_end_logits": [],
-            #   "span_end_probs": [],
-            #   "span_start_logits": [],
-            #   "span_start_probs": [],
-            #   "token_offsets": []
         }
 
 
