@@ -1,4 +1,5 @@
 import React from 'react';
+import Tabs from 'antd/es/tabs';
 import { TextWithHighlight, Output, ArithmeticEquation } from '@allenai/tugboat/components';
 import { Model } from '@allenai/tugboat/lib';
 import {
@@ -11,17 +12,12 @@ import { ModelId } from '../../lib';
 import {
     Input,
     Prediction,
-    NAQANetAnswerType,
     BiDAFPrediction,
-    NAQANetPrediction,
     TransformerQAPrediction,
     isBiDAFPrediction,
     isNAQANetPrediction,
     isTransformerQAPrediction,
     isNMNPrediction,
-    isNAQANetPredictionSpan,
-    isNAQANetPredictionCount,
-    isNAQANetPredictionArithmetic,
     getBasicAnswer,
 } from './types';
 import { NMNOutput } from './nmn';
@@ -93,23 +89,26 @@ const BasicPrediction = ({
 }) => {
 
     return (
-        <>
-            <BasicAnswer output={output} />
-            <Output.SubSection title="Passage Context" >
-                {output.context.map((context, idx) => 
-                    <Highlight 
-                        search={output.best_span_str[idx]}
-                        matchElement={`font`}
-                        matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}
-                        >
-                        {context}
-                    </Highlight>
-                )}
-            </Output.SubSection>
+        <>        
+            <Tabs>
+                <Tabs.TabPane tab="Demo" key="Demo">
+                    <BasicAnswer output={output} />
+                    <Output.SubSection title="Passage Context" >
+                        {output.context.map((context, idx) => 
+                            <Highlight 
+                                search={output.best_span_str[idx]}
+                                matchElement={`font`}
+                                matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}>
+                                {context}
+                            </Highlight>
+                        )}
+                    </Output.SubSection>
 
-            <Output.SubSection title="Question">
-                <div>{output.question}</div>
-            </Output.SubSection>
+                    <Output.SubSection title="Question">
+                        <div>{output.question}</div>
+                    </Output.SubSection>
+                </Tabs.TabPane>
+            </Tabs>
         </>
     );
 };

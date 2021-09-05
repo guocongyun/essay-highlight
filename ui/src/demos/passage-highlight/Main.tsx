@@ -24,6 +24,9 @@ import { InterpreterData, DoubleGradInput, isDoubleInterpreterData } from '../..
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
 
+import PropTypes from 'prop-types';
+import ReactPaginate from 'react-paginate';
+
 const MyUploader = () => {
     // specify upload params and url for your files
     const getUploadParams = ({ meta }) => { return { url: 'http://localhost:8080/api/bidaf/upload' } }
@@ -43,50 +46,57 @@ const MyUploader = () => {
     )
 }
 
+const Paginate = () => {
+    return (
+        <ReactPaginate
+            previousLabel={'previous'}
+            nextLabel={'next'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={10}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            // onPageChange={this.handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+        />
+    )
+}
+
 export const Main = () => {
     return (
         <TaskDemo ids={config.modelIds} taskId={config.taskId}>
             <TaskTitle />
             <TaskDescription />
             <SelectModelAndDescription />
-            <Tabs>
-                <Tabs.TabPane tab="Demo" key="Demo">
-                    <SelectExample displayProp="question" placeholder="Select a Question…" />
-                    <Predict<Input, Prediction>
-                        version={Version}
-                        fields={
-                            <>
-                                <Field.Passage />
-                                <Field.Question />
-                                <Submit>Run Model</Submit>
-                            </>
-                        }>
-                        {({ input, model, output }) => (
-                            <Output>
-                                <Output.Section
-                                    title="Model Output"
-                                    extra={
-                                        <Share.ShareButton
-                                            doc={input}
-                                            slug={Share.makeSlug(input.question)}
-                                            type={Version}
-                                            app={AppId}
-                                        />
-                                    }>
-                                    <Predictions input={input} model={model} output={output} />
-                                </Output.Section>
-                            </Output>
-                        )}
-                    </Predict>
-                    <MyUploader/>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Model Card" key="Card">
-                    <SelectedModelCard />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Model Usage" key="Usage">
-                    <Usage />
-                </Tabs.TabPane>
-            </Tabs>
+            <SelectExample displayProp="question" placeholder="Select a Question…" />
+            <MyUploader/>
+            <Predict<Input, Prediction>
+                version={Version}
+                fields={
+                    <>
+                        <Field.Passage />
+                        <Field.Question />
+                        <Submit>Run Model</Submit>
+                    </>
+                }>
+                {({ input, model, output }) => (
+                    <Output>
+                        <Output.Section
+                            title="Model Output"
+                            extra={
+                                <Share.ShareButton
+                                    doc={input}
+                                    slug={Share.makeSlug(input.question)}
+                                    type={Version}
+                                    app={AppId}
+                                />
+                            }>
+                            <Predictions input={input} model={model} output={output} />
+                        </Output.Section>
+                    </Output>
+                )}
+            </Predict>
         </TaskDemo>
     );
 };
