@@ -72,10 +72,10 @@ const OutputByModel = ({
     throw new UnexpectedModelError(model.id);
 };
 
-const BasicAnswer = ({ output }: { output: Prediction }) => {
+const BasicAnswer = ({ output }: { output: any }) => {
     return (
         <Output.SubSection title="Answer">
-            <div style={{whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordWrap: 'break-word'}}>{getBasicAnswer(output)}</div>
+            <div style={{whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordWrap: 'break-word'}}>{output}</div>
         </Output.SubSection>
     );
 };
@@ -93,20 +93,20 @@ const BasicPrediction = ({
             <Tabs>
                 {output.context.map((contexts, i) =>
                     <Tabs.TabPane tab={`${i}`} key={`${i}`}>
-                        <BasicAnswer output={output} />
+                        <BasicAnswer output={output.answer[i]} />
                         <Output.SubSection title="Passage Context" >
-                            {contexts.map((context, idx) => 
+                            {contexts.map((context, j) => 
                                 <Highlight 
-                                    search={output.best_span_str[i][idx]}
+                                    search={output.best_span_str[i][j]}
                                     matchElement={`font`}
                                     matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}>
-                                    {context}
+                                    {output.context[i][j]}
                                 </Highlight>
                             )}
                         </Output.SubSection>
 
                         <Output.SubSection title="Question">
-                            <div>{output.question}</div>
+                            <div>{output.question[0]}</div>
                         </Output.SubSection>
                     </Tabs.TabPane>
                 )}
