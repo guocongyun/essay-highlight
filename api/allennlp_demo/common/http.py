@@ -215,7 +215,7 @@ class MyModelEndpoint:
         contexts = []
         for fp in files:
             with open(fp, "r") as f:
-                contexts += [inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
+                contexts += [[inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
         return contexts
 
     def predict(self, inputs: JsonDict) -> JsonDict:
@@ -224,16 +224,30 @@ class MyModelEndpoint:
         """
         question = inputs["question"].strip()
         if self.file: contexts = self.process_zip(self.file)
-        else: contexts = [inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]
-        input_dict, all_inputs = self.preprocess(question, contexts)
-        ouputs = self.model2(**input_dict)
-        answer = self.get_best_ans(input_dict, ouputs, contexts, all_inputs)
-        answer = [ans['text'] for ans in answer[:5]]
+        else: contexts = [[inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
+
+        ret = {
+            "best_span_str": [],
+            "question": [],
+            "context": [],
+            "answer": [],
+        }
+
+        for context in contexts:
+            input_dict, all_inputs = self.preprocess(question, context)
+            ouputs = self.model2(**input_dict)
+            answer = self.get_best_ans(input_dict, ouputs, context, all_inputs)
+            answer = [ans['text'] for ans in answer[:5]]
+            ret["best_span_str"].append(answer)
+            ret["question"].append(question)
+            ret["context"].append(context)
+            ret["answer"].append("\n".join(answer))
+
         return {
-            "best_span_str": answer,
-            "question": question,
-            "context": contexts,
-            "answer": "\n".join(answer),
+            "best_span_str": ret["best_span_str"],
+            "question": ret["question"],
+            "context": ret["context"],
+            "answer": ret["answer"],
         }
 
 

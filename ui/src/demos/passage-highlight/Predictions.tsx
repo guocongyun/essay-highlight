@@ -91,23 +91,25 @@ const BasicPrediction = ({
     return (
         <>        
             <Tabs>
-                <Tabs.TabPane tab="Demo" key="Demo">
-                    <BasicAnswer output={output} />
-                    <Output.SubSection title="Passage Context" >
-                        {output.context.map((context, idx) => 
-                            <Highlight 
-                                search={output.best_span_str[idx]}
-                                matchElement={`font`}
-                                matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}>
-                                {context}
-                            </Highlight>
-                        )}
-                    </Output.SubSection>
+                {output.context.map((contexts, i) =>
+                    <Tabs.TabPane tab={`${i}`} key={`${i}`}>
+                        <BasicAnswer output={output} />
+                        <Output.SubSection title="Passage Context" >
+                            {contexts.map((context, idx) => 
+                                <Highlight 
+                                    search={output.best_span_str[i][idx]}
+                                    matchElement={`font`}
+                                    matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}>
+                                    {context}
+                                </Highlight>
+                            )}
+                        </Output.SubSection>
 
-                    <Output.SubSection title="Question">
-                        <div>{output.question}</div>
-                    </Output.SubSection>
-                </Tabs.TabPane>
+                        <Output.SubSection title="Question">
+                            <div>{output.question}</div>
+                        </Output.SubSection>
+                    </Tabs.TabPane>
+                )}
             </Tabs>
         </>
     );

@@ -20,10 +20,10 @@ export const isWithTokenizedInput = (pred: any): pred is WithTokenizedInput => {
 
 export interface BiDAFPrediction extends WithTokenizedInput {
     // best_span: number[]; // index into the token list
-    best_span_str: string[];
-    context: string[];
-    question: string;
-    answer: string;
+    best_span_str: string[][];
+    context: string[][];
+    question: string[];
+    answer: string[];
     // passage_question_attention: number[][];
     // span_end_logits: number[];
     // span_end_probs: number[];
@@ -48,10 +48,10 @@ export const isBiDAFPrediction = (pred: Prediction): pred is BiDAFPrediction => 
 };
 
 export interface TransformerQAPrediction {
-    best_span_str: string[];
-    context: string[];
-    question: string;
-    answer: string;
+    best_span_str: string[][];
+    context: string[][];
+    question: string[];
+    answer: string[];
 }
 
 export const isTransformerQAPrediction = (pred: Prediction): pred is TransformerQAPrediction => {
