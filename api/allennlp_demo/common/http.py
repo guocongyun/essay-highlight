@@ -245,6 +245,8 @@ class MyModelEndpoint:
             ret["context"].append(context)
             ret["answer"].append("\n".join(answer))
 
+        self.contexts = []
+        
         return {
             "best_span_str": ret["best_span_str"],
             "question": ret["question"],
@@ -296,6 +298,11 @@ class MyModelEndpoint:
                     with open(fp, "r") as f:
                         self.contexts += [[inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
                 shutil.rmtree(tmpdir)
+            return ""
+
+        @self.app.route("/remove", methods=["GET", "POST"])
+        def remove_handler():
+            if self.contexts: self.contexts = []
             return ""
 
         # noop post for image upload, we need an endpoint, but we don't need to save the image
