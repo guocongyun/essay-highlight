@@ -19,6 +19,8 @@ import torch
 import zipfile
 import glob
 import os
+import tempfile
+import shutil
 
 def no_cache(request: Request) -> bool:
     """
@@ -89,7 +91,7 @@ class MyModelEndpoint:
         self.app = Flask(model.id)
         self.configure_logging(log_payloads)
         self.configure_error_handling()
-        self.file = None
+        self.contexts = []
 
         # By creating the LRU caches when the class is instantiated, we can
         # be sure that the caches are specific to the instance, and not the class,
@@ -223,7 +225,7 @@ class MyModelEndpoint:
         Returns predictions.
         """
         question = inputs["question"].strip()
-        if self.file: contexts = self.process_zip(self.file)
+        if self.contexts: contexts = self.contexts
         else: contexts = [[inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
 
         ret = {
@@ -284,13 +286,16 @@ class MyModelEndpoint:
         @self.app.route("/upload", methods=["GET", "POST"])
         def upload_handler():
             if request.method == 'POST':
-
                 file = request.files['file']
-                # If the user does not select a file, the browser submits an
-                # empty file without a filename.
-                filename = file.filename
-                file.save(os.path.join("/tmp", filename))
-                self.file = file
+                file = zipfile.ZipFile(file)
+                tmpdir = tempfile.mkdtemp()
+                file.extractall(tmpdir)
+                files = glob.glob(f"{tmpdir}/*")
+                self.contexts = []
+                for fp in files:
+                    with open(fp, "r") as f:
+                        self.contexts += [[inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
+                shutil.rmtree(tmpdir)
             return ""
 
         # noop post for image upload, we need an endpoint, but we don't need to save the image
