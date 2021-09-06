@@ -21,6 +21,7 @@ import glob
 import os
 import tempfile
 import shutil
+from flask_cors import CORS
 
 def no_cache(request: Request) -> bool:
     """
@@ -89,6 +90,7 @@ class MyModelEndpoint:
     def __init__(self, model: config.Model, log_payloads: bool = False):
         self.model = model
         self.app = Flask(model.id)
+        self.app = CORS(self.app)
         self.configure_logging(log_payloads)
         self.configure_error_handling()
         self.contexts = []
