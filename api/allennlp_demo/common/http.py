@@ -21,6 +21,7 @@ import glob
 import os
 import tempfile
 import shutil
+from flask_cors import CORS, cross_origin
 
 def no_cache(request: Request) -> bool:
     """
@@ -286,6 +287,7 @@ class MyModelEndpoint:
             return self.info()
 
         @self.app.route("/upload", methods=["GET", "POST"])
+        @cross_origin(supports_credentials=True)
         def upload_handler():
             if request.method == 'POST':
                 file = request.files['file']
