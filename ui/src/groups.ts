@@ -13,23 +13,15 @@ import questionIcon from './icons/question-14px.svg';
 
 export const groups: DemoGroup[] = [
     {
-        label: 'Highlight Passage',
+        label: 'Answer a question',
         iconSrc: questionIcon,
     },
-    // {
-    //     label: 'Annotate a sentence',
-    //     iconSrc: annotateIcon,
-    // },
-    // {
-    //     label: 'Annotate a passage',
-    //     iconSrc: passageIcon,
-    // },
-    // {
-    //     label: 'Generate a passage',
-    //     iconSrc: addIcon,
-    // },
-    // {
-    //     label: 'Compare two sentences',
-    //     iconSrc: parseIcon,
-    // },
+    {
+        label: 'Annotate a passage',
+        iconSrc: passageIcon,
+    },
+    {
+        label: 'Compare two sentences',
+        iconSrc: parseIcon,
+    },
 ];
