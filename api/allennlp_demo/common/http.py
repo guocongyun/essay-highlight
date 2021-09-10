@@ -6,6 +6,7 @@ from typing import Callable, Dict
 from flask import Flask, Request, Response, after_this_request, request, jsonify
 from allennlp.version import VERSION
 from allennlp.predictors.predictor import JsonDict
+from numpy.core.numeric import Inf
 from transformers import (
     AutoConfig,
     AutoModelForQuestionAnswering,
@@ -22,6 +23,8 @@ import os
 import tempfile
 import shutil
 from flask_cors import CORS, cross_origin
+from sentence_transformers import SentenceTransformer, util
+import spacy
 
 def no_cache(request: Request) -> bool:
     """
@@ -105,25 +108,40 @@ class MyModelEndpoint:
         self.predict_with_cache = predict_with_cache
 
         self.setup_routes()
-        self.config = AutoConfig.from_pretrained(
-            self.model.model_path,
-            cache_dir="./cache",
-            use_auth_token=None,
-        )
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model.model_path,
-            use_fast=True,
-            cache_dir="./cache",
-            use_auth_token= None,
-    #         force_download=True,
-        )
-        self.model2 = AutoModelForQuestionAnswering.from_pretrained(
-            self.model.model_path,
-            cache_dir="./cache",
-            revision="main",
-            config=self.config,
-        )
-    
+
+        if self.model.similarity_model_weight != 1:
+            self.config = AutoConfig.from_pretrained(
+                self.model.model_path,
+                cache_dir="./cache",
+                use_auth_token=None,
+            )
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model.model_path,
+                use_fast=True,
+                cache_dir="./cache",
+                use_auth_token= None,
+        #         force_download=True,
+            )
+            self.qa_model = AutoModelForQuestionAnswering.from_pretrained(
+                self.model.model_path,
+                cache_dir="./cache",
+                revision="main",
+                config=self.config,
+            )
+        if self.model.similarity_model_weight != 0:
+            self.nlp = spacy.load('en_core_web_sm')
+            self.similarity_model = SentenceTransformer("sentence-transformers/all-distilroberta-v1", cache_folder="/app/allennlp_demo/common/similarity_models")
+        self.standardize = lambda x: (x - x.mean())/(x.std())
+
+    def similarity_score(self, target: str, texts: List[str]) -> str:
+
+        tar_embed = self.similarity_model.encode(target, convert_to_tensor=True)
+        sent_embed = self.similarity_model.encode(texts, convert_to_tensor=True)
+
+        cosine_scores = util.pytorch_cos_sim(tar_embed, sent_embed)
+        scores = self.standardize(np.array(cosine_scores.tolist()[0]))
+        return scores
+
     def preprocess(self, question: str, contexts: List[str]) -> Dict:
         all_inputs = []
         for context in contexts:
@@ -155,20 +173,19 @@ class MyModelEndpoint:
             return sorted(valid_answers, key=lambda x: x[rank], reverse=True)[:best_k]
         else: 
             return [{
-                            "qa_score": -999,
-                            "score": -999,
-                            "start": -999,
-                            "end": -999,
+                            "qa_score": -Inf,
+                            "score": -Inf,
+                            "start": -Inf,
+                            "end": -Inf,
                             "text": "",
                         }]
 
-    def get_best_ans(self, inputs: Dict, outputs: Dict, contexts:List[str], all_inputs: List) -> List[Dict]:
-        standardize = lambda x: (x - x.mean())/(x.std())
+    def get_best_ans(self, inputs: Dict, outputs: Dict, contexts:List[str], question: str, all_inputs: List) -> List[Dict]:
         end_sent = set([".", ",", "?", "!", ":"])
         ret = []
         for idx in range(len(outputs["start_logits"])):
-            start_logits = standardize(outputs.start_logits[idx].detach().numpy())
-            end_logits = standardize(outputs.end_logits[idx].detach().numpy())
+            start_logits = self.standardize(outputs.start_logits[idx].detach().numpy())
+            end_logits = self.standardize(outputs.end_logits[idx].detach().numpy())
 #             start_logits = standardize(outputs.start_logits[idx].detach().numpy()[0]) # For GPU usage
 #             end_logits = standardize(outputs.end_logits[idx].detach().numpy()[0])
             min_null_score = None # Only used if squad_v2 is True.
@@ -205,6 +222,12 @@ class MyModelEndpoint:
                             "text": contexts[idx][start_char: end_char],
                         }
                     )
+            if self.model.similarity_model_weight != 0:
+                texts = [text["text"] for text in valid_answers]
+                scores = self.similarity_score(question, texts)
+                for idx, answer in enumerate(valid_answers):
+                    answer["score"] += self.model.similarity_model_weight*scores[idx]
+
             ret.extend(self.get_kbest(
                     valid_answers, 
                     rank="score",
@@ -221,10 +244,34 @@ class MyModelEndpoint:
                 contexts += [[inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
         return contexts
 
+    def find_similar_texts(self, question: str, context: List[List[str]]) -> Dict:
+        ret = []
+        for paragraph in context:
+            texts = [s.text.strip() for s in self.nlp(paragraph).sents if s.text.strip() != ""]
+            if not texts: continue
+            score = self.similarity_score(question, texts)
+            valid_answers = []
+            for idx, s in enumerate(score):
+                valid_answers.append(
+                    {
+                        "score":s,
+                        "start":-1,
+                        "end":-1,
+                        "text": texts[idx],
+                    }
+                )
+                ret.extend(self.get_kbest(
+                    valid_answers, 
+                    rank="score",
+                    best_k=1))
+            
+            return ret
+                
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
         Returns predictions.
         """
+        print(inputs)
         question = inputs["question"].strip()
         if self.contexts: contexts = self.contexts
         else: contexts = [[inp.strip() for inp in inputs["passage"].strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
@@ -237,9 +284,13 @@ class MyModelEndpoint:
         }
 
         for context in contexts:
-            input_dict, all_inputs = self.preprocess(question, context)
-            ouputs = self.model2(**input_dict)
-            answer = self.get_best_ans(input_dict, ouputs, context, all_inputs)
+            if self.model.similarity_model_weight != 1: 
+                input_dict, all_inputs = self.preprocess(question, context)
+                ouputs = self.qa_model(**input_dict)
+                answer = self.get_best_ans(input_dict, ouputs, context, question, all_inputs)
+            else:
+                answer = self.find_similar_texts(question, context)
+
             answer = [ans['text'] for ans in answer[:5]]
             ret["best_span_str"].append(answer)
             ret["question"].append(question)
