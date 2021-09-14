@@ -35,7 +35,7 @@ const SingleFileAutoSubmit = () => {
     }
 
     const getUploadParams = () => {
-      return { url: 'http://localhost:8080/api/bidaf/upload' }
+      return { url: 'http://localhost:8080/api/transformer-qa/upload' }
     }
   
     const handleChangeStatus = ({ meta, remove }, status) => {

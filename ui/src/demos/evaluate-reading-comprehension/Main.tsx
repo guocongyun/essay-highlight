@@ -53,7 +53,7 @@ const SingleFileAutoSubmit = () => {
     }
 
     const getUploadParams = () => {
-      return { url: 'http://localhost:8080/api/bidaf/upload' }
+      return { url: 'http://localhost:8080/api/bidaf-elmo/upload' }
     }
   
     const handleChangeStatus = ({ meta, remove }, status) => {
