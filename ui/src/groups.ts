@@ -17,7 +17,7 @@ export const groups: DemoGroup[] = [
         iconSrc: questionIcon,
     },
     {
-        label: 'Annotate a passage',
+        label: 'Annotate a sentence',
         iconSrc: passageIcon,
     },
     {
