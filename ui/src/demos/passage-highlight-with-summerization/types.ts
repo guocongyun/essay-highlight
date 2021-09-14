@@ -24,6 +24,8 @@ export interface BiDAFPrediction extends WithTokenizedInput {
     context: string[][];
     question: string[];
     answer: string[];
+    summarization: string[][];
+    tag: string[][];
     // passage_question_attention: number[][];
     // span_end_logits: number[];
     // span_end_probs: number[];
@@ -49,10 +51,11 @@ export const isBiDAFPrediction = (pred: Prediction): pred is BiDAFPrediction => 
 
 export interface TransformerQAPrediction {
     best_span_str: string[][];
-    summerization: string[][],
+    summarization: string[][];
     context: string[][];
     question: string[];
     answer: string[];
+    tag: string[][];
 }
 
 export const isTransformerQAPrediction = (pred: Prediction): pred is TransformerQAPrediction => {

@@ -1,6 +1,16 @@
 import React from 'react';
 import Tabs from 'antd/es/tabs';
-import { TextWithHighlight, Output, ArithmeticEquation } from '@allenai/tugboat/components';
+import styled from 'styled-components';
+import { 
+    TextWithHighlight, 
+    Output, 
+    ArithmeticEquation,
+    Highlight,
+    HighlightColor,
+    HighlightContainer,
+    formatTokens,
+    FormattedToken,
+} from '@allenai/tugboat/components';
 import { Model } from '@allenai/tugboat/lib';
 import {
     InvalidModelResponseError,
@@ -27,7 +37,6 @@ interface Props {
 }
 declare var require: any
 // var Highlight = require('../../lib/highlighter')
-var Highlight = require('react-highlighter')
 export const Predictions = ({ input, model, output }: Props) => {
     return (
         <Output.Section>
@@ -68,6 +77,54 @@ const BasicAnswer = ({ output }: { output: any }) => {
     );
 };
 
+const StyledHighlightContainer = styled(HighlightContainer)`
+    margin-left: ${({ theme }) => theme.spacing.md};
+`;
+
+const TokenSpan = ({ token, id, summarization }: { token: FormattedToken; id: number; summarization: string}) => {
+  if (token.entity === undefined) {
+      // If no entity,
+      // Display raw text.
+      return <span>{`${token.text}${' '}`}</span>;
+  }
+
+  // const tagParts = token.entity.split('-');
+  // const [tagLabel, attr] = tagParts;
+
+  // Convert the tag label to a node type. In the long run this might make sense as
+  // a map / lookup table of some sort -- but for now this works.
+  let color: HighlightColor = 'T';
+  let tooltip = " ";
+  if (token.entity != 'O') {
+    tooltip = summarization;
+      color = 'T';
+    }
+  // } else if (tagLabel === 'a') {
+  //     nodeType = 'Argument';
+  //     color = 'M';
+  // } else if (/ARG\d+/.test(tagLabel)) {
+  //     nodeType = 'ASDFasdf';
+  //     color = 'G';
+  // } else if (tagLabel === 'R') {
+  //     nodeType = 'Reference';
+  //     color = 'P';
+  // } else if (tagLabel === 'C') {
+  //     nodeType = 'Continuation';
+  //     color = 'A';
+  // } else if (tagLabel === 'V') {
+  //     nodeType = 'Verb';
+  //     color = 'B';
+  // }
+
+
+  // Display entity text wrapped in a <Highlight /> component.
+  return (
+      <Highlight id={id} label={token.entity} color={color} tooltip={tooltip}>
+          {token.text}{' '}
+      </Highlight>
+  );
+};
+
 const BasicPrediction = ({
     input,
     output,
@@ -83,14 +140,13 @@ const BasicPrediction = ({
                     <Tabs.TabPane tab={`${i}`} key={`${i}`}>
                         <BasicAnswer output={output.answer[i]} />
                         <Output.SubSection title="Passage Context" >
-                            {contexts.map((context, j) => 
-                                <Highlight 
-                                    search={output.best_span_str[i][j]}
-                                    matchElement={`font`}
-                                    matchStyle={{background:"black", color:"white", fontSize:"10", flexShrink: 1, overflowWrap: 'break-word', wordWrap: 'break-word'}}>
-                                    {output.context[i][j]}
-                                </Highlight>
-                            )}
+                            {contexts.map((c, j) => (
+                                <StyledHighlightContainer centerLabels={false}>
+                                {formatTokens(output.tag[i][j], c).map((token, k) => (
+                                        <TokenSpan key={k} id={k} token={token} summarization={output.summarization[i][j]} />
+                                    ))}
+                                </StyledHighlightContainer>
+                            ))}
                         </Output.SubSection>
 
                         <Output.SubSection title="Question">
