@@ -5,10 +5,16 @@ run an endpoint locally, just run the start command with the ID of the endpoint:
 
 ```
 ./demo start ui
-./demo start bidaf
+./demo start bidaf (Starts qa model in Reading Comprehension tab)
+./demo start bidaf_elmo (Starts textual similarity model in Evaluate Reading Comprehension)
+./demo start transformer-qa (Starts summarization model in Named Entity Recognition)
 ```
 
-Note1: Please unzip qa model in api/bidaf/common/qa_models directory. The unzipped directory should be
+The website is hosted on localhost:8080
+Please unzip qa model in api/bidaf/common/qa_models directory. 
+Please unzip similarity model in api/bidaf/common/similarity_models directory. 
+Please unzip summarization model in api/bidaf/common/summarization_models directory. 
+The unzipped directory should be
 ```
 +--api
    +--bidaf_elmo
@@ -18,6 +24,13 @@ Note1: Please unzip qa model in api/bidaf/common/qa_models directory. The unzipp
           +--deepsettosed
               +--checkpoint-14800
                   +--pytorch_model.bin
+                  +--...
+      +--similarity_model
+        +--pytorch_model.bin
+        +--...
+      +--summarization_models
+        +--pytorch_model.bin
+        +--...
 ```
                   
 
