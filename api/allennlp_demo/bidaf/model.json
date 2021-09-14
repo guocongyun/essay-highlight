@@ -8,5 +8,7 @@
     "start_weight": 0.5,
     "nbest": 10,
     "max_answer_length": 300,
-    "min_answer_length": 5
+    "min_answer_length": 5,
+    "similarity_model_weight": 0,
+    "summerization_model": false
 }
