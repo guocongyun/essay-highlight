@@ -1,6 +1,7 @@
 from functools import lru_cache
 from dataclasses import asdict
 import json
+import re
 from typing import Callable, Dict
 
 from flask import Flask, Request, Response, after_this_request, request, jsonify
@@ -280,9 +281,41 @@ class MyModelEndpoint:
             inp = self.summarize_tokenizer(text, return_tensors="pt")
             pred = self.summarize_model.generate(**inp)
             pred = self.tokenizer.batch_decode(pred)
-            ret.append(pred)
+            ret.extend(pred)
         return ret
 
+    def get_tags(self, ret: JsonDict) -> List[List[List[str]]]:
+        k = len(ret["context"])
+        tags = [[] for _ in range(k)]
+        contexts = [[] for _ in range(k)]
+        summarizations = [[] for _ in range(k)]
+        p = 0
+
+        for i in range(k):
+            n = len(ret["context"][i])
+            for j in range(n):
+                start = ret["context"][i][j].find(ret["best_span_str"][i][j])
+                if start != -1:
+                    end = start + len(ret["best_span_str"][i][j])
+                    if len(ret["context"][i][j]) > end:
+                        list_context = [ret["context"][i][j][:start], ret["context"][i][j][start:end], ret["context"][i][j][end:]]
+                        list_tag = ["O","B- ","O"]
+                    else:
+                        list_context = [ret["context"][i][j][:start], ret["context"][i][j][start:end]]
+                        list_tag = ["O","B- "]
+                    summary = ret["summarization"][p]
+                    p += 1
+                else:
+                    list_context = ret["context"][i][j]
+                    list_tag = ["O"]
+                    summary = ""
+
+                summarizations[i].append(summary)
+                contexts[i].append(list_context)
+                tags[i].append(list_tag)
+        return tags, contexts, summarizations
+
+        
 
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
@@ -299,6 +332,7 @@ class MyModelEndpoint:
             "question": [],
             "context": [],
             "answer": [],
+            "tag": [],
         }       
         for context in contexts:
             if self.model.similarity_model_weight != 1: 
@@ -314,7 +348,7 @@ class MyModelEndpoint:
             ret["context"].append(context)
             ret["answer"].append("\n".join(answer))
 
-            if self.model.summerization_model: ret["summarization"].append(self.summarize(ret["best_span_str"][-1]))
+            if self.model.summerization_model: ret["summarization"].extend(self.summarize(ret["best_span_str"][-1]))
 
         self.contexts = []
         if not self.model.summerization_model:        
@@ -325,12 +359,14 @@ class MyModelEndpoint:
                 "answer": ret["answer"],
             }
         else:
+            tags, contexts, summary = self.get_tags(ret)
             return {
                 "best_span_str": ret["best_span_str"],
-                "summarization": ret["summarization"],
+                "summarization": summary,
                 "question": ret["question"],
-                "context": ret["context"],
+                "context": contexts,
                 "answer": ret["answer"],
+                "tag": tags
             }
 
 
