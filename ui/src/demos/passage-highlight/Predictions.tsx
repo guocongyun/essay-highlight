@@ -26,6 +26,7 @@ interface Props {
     output: Prediction;
 }
 declare var require: any
+// var Highlight = require('../../lib/highlighter')
 var Highlight = require('react-highlighter')
 export const Predictions = ({ input, model, output }: Props) => {
     return (
