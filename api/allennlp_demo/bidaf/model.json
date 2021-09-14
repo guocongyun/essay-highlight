@@ -1,7 +1,7 @@
 {
     "id": "bidaf",
     "pretrained_model_id": "rc-bidaf",
-    "model_path": "/app/allennlp_demo/common/qa_models/roberta/deepsettosed_kf2/checkpoint-14800",
+    "qa_model_path": "/app/allennlp_demo/common/qa_models/roberta/deepsettosed_kf2/checkpoint-14800",
     "max_seq_length": 512,
     "stride": 128,
     "pad_on_right": true,

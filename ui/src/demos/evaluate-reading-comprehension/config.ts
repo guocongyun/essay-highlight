@@ -6,7 +6,9 @@ export const config: DemoConfig = {
     group: 'Compare two sentences',
     title: 'Evaluate Reading Comprehension',
     order: 2,
-    modelIds: [ModelId.BidafELMO],
+    modelIds: [
+        ModelId.BidafELMO
+    ],
     status: 'active',
     taskId: 'evaluate_rc',
 };

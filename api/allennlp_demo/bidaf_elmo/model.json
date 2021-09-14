@@ -1,6 +1,6 @@
 {
     "id": "bidaf-elmo",
     "pretrained_model_id": "rc-bidaf-elmo",
-    "model_path": "/app/allennlp_demo/common/similarity_models",
+    "similarity_model_path": "/app/allennlp_demo/common/similarity_models",
     "similarity_model_weight": 1
 }
