@@ -1,12 +1,15 @@
 {
     "id": "transformer-qa",
     "pretrained_model_id": "rc-transformer-qa",
-    "model_path": "/app/allennlp_demo/common/qa_models/roberta/deepsettosed_kf2/checkpoint-14800",
+    "summarize_model_path": "/app/allennlp_demo/common/summarization_models",
+    "qa_model_path": "/app/allennlp_demo/common/qa_models/roberta/deepsettosed_kf2/checkpoint-14800",
     "max_seq_length": 512,
+    "similarity_model_weight": 0,
     "stride": 128,
     "pad_on_right": true,
     "start_weight": 0.5,
     "nbest": 10,
     "max_answer_length": 300,
-    "min_answer_length": 5
+    "min_answer_length": 30,
+    "summerization_model": true
 }

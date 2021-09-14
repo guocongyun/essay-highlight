@@ -11,6 +11,7 @@ from transformers import (
     AutoConfig,
     AutoModelForQuestionAnswering,
     AutoTokenizer,
+    BartForConditionalGeneration,
 )
 from allennlp_demo.common import config
 from allennlp_demo.common.logs import configure_logging
@@ -111,26 +112,32 @@ class MyModelEndpoint:
 
         if self.model.similarity_model_weight != 1:
             self.config = AutoConfig.from_pretrained(
-                self.model.model_path,
+                self.model.qa_model_path,
                 cache_dir="./cache",
                 use_auth_token=None,
             )
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model.model_path,
+                self.model.qa_model_path,
                 use_fast=True,
                 cache_dir="./cache",
                 use_auth_token= None,
         #         force_download=True,
             )
             self.qa_model = AutoModelForQuestionAnswering.from_pretrained(
-                self.model.model_path,
+                self.model.qa_model_path,
                 cache_dir="./cache",
                 revision="main",
                 config=self.config,
             )
+        
         if self.model.similarity_model_weight != 0:
             self.nlp = spacy.load('en_core_web_sm')
-            self.similarity_model = SentenceTransformer("sentence-transformers/all-distilroberta-v1", cache_folder="/app/allennlp_demo/common/similarity_models")
+            self.similarity_model = SentenceTransformer("sentence-transformers/all-distilroberta-v1", cache_folder=self.model.similarity_model_path)
+        
+        if self.model.summerization_model:
+            self.summarize_tokenizer = AutoTokenizer.from_pretrained(self.model.summarize_model_path)
+            self.summarize_model = BartForConditionalGeneration.from_pretrained(self.model.summarize_model_path)
+
         self.standardize = lambda x: (x - x.mean())/(x.std())
 
     def similarity_score(self, target: str, texts: List[str]) -> str:
@@ -244,7 +251,7 @@ class MyModelEndpoint:
                 contexts += [[inp.strip() for inp in f.read().strip().split("\n") if (inp.strip() != "" and inp.strip() != "\n")]]
         return contexts
 
-    def find_similar_texts(self, question: str, context: List[List[str]]) -> Dict:
+    def find_similar_texts(self, question: str, context: List[List[str]]) -> List[Dict]:
         ret = []
         for paragraph in context:
             texts = [s.text.strip() for s in self.nlp(paragraph).sents if s.text.strip() != ""]
@@ -266,7 +273,17 @@ class MyModelEndpoint:
                     best_k=1))
             
             return ret
-                
+    
+    def summarize(self, inputs: List[str]) -> List[str]:
+        ret = []
+        for text in inputs:
+            inp = self.summarize_tokenizer(text, return_tensors="pt")
+            pred = self.summarize_model.generate(**inp)
+            pred = self.tokenizer.batch_decode(pred)
+            ret.append(pred)
+        return ret
+
+
     def predict(self, inputs: JsonDict) -> JsonDict:
         """
         Returns predictions.
@@ -278,11 +295,11 @@ class MyModelEndpoint:
 
         ret = {
             "best_span_str": [],
+            "summarization": [],
             "question": [],
             "context": [],
             "answer": [],
-        }
-
+        }       
         for context in contexts:
             if self.model.similarity_model_weight != 1: 
                 input_dict, all_inputs = self.preprocess(question, context)
@@ -297,14 +314,24 @@ class MyModelEndpoint:
             ret["context"].append(context)
             ret["answer"].append("\n".join(answer))
 
+            if self.model.summerization_model: ret["summarization"].append(self.summarize(ret["best_span_str"][-1]))
+
         self.contexts = []
-        
-        return {
-            "best_span_str": ret["best_span_str"],
-            "question": ret["question"],
-            "context": ret["context"],
-            "answer": ret["answer"],
-        }
+        if not self.model.summerization_model:        
+            return {
+                "best_span_str": ret["best_span_str"],
+                "question": ret["question"],
+                "context": ret["context"],
+                "answer": ret["answer"],
+            }
+        else:
+            return {
+                "best_span_str": ret["best_span_str"],
+                "summarization": ret["summarization"],
+                "question": ret["question"],
+                "context": ret["context"],
+                "answer": ret["answer"],
+            }
 
 
     def info(self) -> str:

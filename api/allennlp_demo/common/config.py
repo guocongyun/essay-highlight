@@ -59,9 +59,19 @@ class Model:
     Some models that run on older versions need to be load differently.
     """
 
-    model_path: str = ""
+    qa_model_path: str = ""
     """
-    Location of model's ppytorch bin file
+    Location of question answering model's pytorch bin file
+    """
+
+    summarize_model_path: str = ""
+    """
+    Location of summarization model's pytorch bin file
+    """
+
+    similarity_model_path: str = ""
+    """
+    Location of sentence transformer model's pytorch bin file
     """
 
     max_seq_length: int = 512
@@ -99,6 +109,15 @@ class Model:
     Minimum amount of span to consider when giving prediction
     """
 
+    similarity_model_weight: int = 0,
+    """
+    Ratio of similarity model and question answering model's weight in prediction, setting it to 1 ignores question answering and setting it to 0 ignores text similarity
+    """
+
+    summerization_model: bool = False,
+    """
+    True if model is used for summerization, else false.
+    """
 
     @classmethod
     def from_file(cls, path: str) -> "Model":

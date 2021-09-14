@@ -72,3 +72,4 @@ typings/
 # models
 api/allennlp_demo/common/qa_models/*
 api/allennlp_demo/common/similarity_models/*
+api/allennlp_demo/common/summarization_models/*

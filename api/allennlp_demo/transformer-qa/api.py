@@ -1,5 +1,4 @@
 import os
-from allennlp_demo.common import config
 from allennlp_demo.common import config, http
 
 class RobertaModelEndpoint2(http.MyModelEndpoint):
