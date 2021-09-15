@@ -81,6 +81,12 @@ const StyledHighlightContainer = styled(HighlightContainer)`
     margin-left: ${({ theme }) => theme.spacing.md};
 `;
 
+const StyledHighlight = styled(Highlight)`
+    whiteSpace: 'pre-wrap'; 
+    overflowWrap: 'break-word'; 
+    wordWrap: 'break-word';
+`
+
 const TokenSpan = ({ token, id, summarization }: { token: FormattedToken; id: number; summarization: string}) => {
   if (token.entity === undefined) {
       // If no entity,
@@ -119,9 +125,9 @@ const TokenSpan = ({ token, id, summarization }: { token: FormattedToken; id: nu
 
   // Display entity text wrapped in a <Highlight /> component.
   return (
-      <Highlight id={id} label={token.entity} color={color} tooltip={tooltip}>
+      <StyledHighlight id={id} label={token.entity} color={color} tooltip={tooltip}>
           {token.text}{' '}
-      </Highlight>
+      </StyledHighlight>
   );
 };
 
@@ -141,11 +147,11 @@ const BasicPrediction = ({
                         <BasicAnswer output={output.answer[i]} />
                         <Output.SubSection title="Passage Context" >
                             {contexts.map((c, j) => (
-                                <StyledHighlightContainer centerLabels={false}>
+                                <div>
                                 {formatTokens(output.tag[i][j], c).map((token, k) => (
                                         <TokenSpan key={k} id={k} token={token} summarization={output.summarization[i][j]} />
                                     ))}
-                                </StyledHighlightContainer>
+                                </div>
                             ))}
                         </Output.SubSection>
 
