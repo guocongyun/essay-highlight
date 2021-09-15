@@ -93,9 +93,9 @@ for idx, data in enumerate(raw_datasets["train"]):
 #     print(" ".join(context[ans_start:ne]))
 #     print("------")
 #     print(" ".join(data["document"]["tokens"]["token"][s:e]))
-    count += 1
-    if count > 2: exit()
-ds = Dataset.from_dict({"data":datas})
+    # count += 1
+    # if count > 2: exit()
+ds = datasets.from_dict({"data":datas})
 ds.save_to_disk("./test")
 exit()
 # sudo python3 -m torch.distributed.launch --nproc_per_node=4 --master_port 29523 run_qa.py
