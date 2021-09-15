@@ -2,9 +2,7 @@ import React from 'react';
 import Tabs from 'antd/es/tabs';
 import styled from 'styled-components';
 import { 
-    TextWithHighlight, 
     Output, 
-    ArithmeticEquation,
     Highlight,
     HighlightColor,
     HighlightContainer,
@@ -13,7 +11,6 @@ import {
 } from '@allenai/tugboat/components';
 import { Model } from '@allenai/tugboat/lib';
 import {
-    InvalidModelResponseError,
     UnexpectedModelError,
     UnexpectedOutputError,
 } from '@allenai/tugboat/error';
@@ -25,18 +22,13 @@ import {
     BiDAFPrediction,
     TransformerQAPrediction,
     isBiDAFPrediction,
-    isNAQANetPrediction,
     isTransformerQAPrediction,
-    isNMNPrediction,
-    getBasicAnswer,
 } from './types';
 interface Props {
     input: Input;
     model: Model;
     output: Prediction;
 }
-declare var require: any
-// var Highlight = require('../../lib/highlighter')
 export const Predictions = ({ input, model, output }: Props) => {
     return (
         <Output.Section>
@@ -94,9 +86,6 @@ const TokenSpan = ({ token, id, summarization }: { token: FormattedToken; id: nu
       return <span>{`${token.text}${' '}`}</span>;
   }
 
-  // const tagParts = token.entity.split('-');
-  // const [tagLabel, attr] = tagParts;
-
   // Convert the tag label to a node type. In the long run this might make sense as
   // a map / lookup table of some sort -- but for now this works.
   let color: HighlightColor = 'T';
@@ -105,22 +94,6 @@ const TokenSpan = ({ token, id, summarization }: { token: FormattedToken; id: nu
     tooltip = summarization;
       color = 'T';
     }
-  // } else if (tagLabel === 'a') {
-  //     nodeType = 'Argument';
-  //     color = 'M';
-  // } else if (/ARG\d+/.test(tagLabel)) {
-  //     nodeType = 'ASDFasdf';
-  //     color = 'G';
-  // } else if (tagLabel === 'R') {
-  //     nodeType = 'Reference';
-  //     color = 'P';
-  // } else if (tagLabel === 'C') {
-  //     nodeType = 'Continuation';
-  //     color = 'A';
-  // } else if (tagLabel === 'V') {
-  //     nodeType = 'Verb';
-  //     color = 'B';
-  // }
 
 
   // Display entity text wrapped in a <Highlight /> component.
@@ -163,149 +136,3 @@ const BasicPrediction = ({
         </>
     );
 };
-
-// const NaqanetPrediction = ({
-//     input,
-//     output,
-//     model,
-// }: {
-//     input: Input;
-//     output: NAQANetPrediction;
-//     model: Model;
-// }) => {
-//     // NAQANetAnswerType.PassageSpan
-//     if (
-//         isNAQANetPredictionSpan(output) &&
-//         output.answer.answer_type === NAQANetAnswerType.PassageSpan
-//     ) {
-//         return (
-//             <>
-//                 <BasicAnswer output={output} />
-
-//                 <Output.SubSection title="Explanation">
-//                     The model decided the answer was in the passage.
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Passage Context">
-//                     <TextWithHighlight
-//                         text={input.passage}
-//                         highlights={output.answer.spans.map((s) => {
-//                             return {
-//                                 start: s[0],
-//                                 end: s[1],
-//                             };
-//                         })}
-//                     />
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Question">
-//                     <div>{input.question}</div>
-//                 </Output.SubSection>
-//             </>
-//         );
-//     }
-
-//     // NAQANetAnswerType.QuestionSpan
-//     if (
-//         isNAQANetPredictionSpan(output) &&
-//         output.answer.answer_type === NAQANetAnswerType.QuestionSpan
-//     ) {
-//         return (
-//             <>
-//                 <BasicAnswer output={output} />
-
-//                 <Output.SubSection title="Explanation">
-//                     The model decided the answer was in the question.
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Passage Context">
-//                     <div>{input.passage}</div>
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Question">
-//                     <TextWithHighlight
-//                         text={input.question}
-//                         highlights={output.answer.spans.map((s) => {
-//                             return {
-//                                 start: s[0],
-//                                 end: s[1],
-//                             };
-//                         })}
-//                     />
-//                 </Output.SubSection>
-//             </>
-//         );
-//     }
-
-//     // NAQANetAnswerType.Count
-//     if (isNAQANetPredictionCount(output)) {
-//         return (
-//             <>
-//                 <BasicAnswer output={output} />
-
-//                 <Output.SubSection title="Explanation">
-//                     The model decided this was a counting problem.
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Passage Context">
-//                     <div>{input.passage}</div>
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Question">
-//                     <div>{input.question}</div>
-//                 </Output.SubSection>
-//             </>
-//         );
-//     }
-
-//     // NAQANetAnswerType.Arithmetic
-//     if (isNAQANetPredictionArithmetic(output)) {
-//         // numbers include all numbers in the context, but we only care about ones that are positive or negative
-//         const releventNumbers = (output.answer.numbers || []).filter((n) => n.sign !== 0);
-
-//         return (
-//             <>
-//                 <BasicAnswer output={output} />
-
-//                 <Output.SubSection title="Explanation">
-//                     {releventNumbers.length ? (
-//                         <div>
-//                             The model used the arithmetic expression{' '}
-//                             <ArithmeticEquation
-//                                 numbersWithSign={releventNumbers}
-//                                 answer={output.answer.value}
-//                                 answerAtEnd={true}
-//                             />
-//                         </div>
-//                     ) : (
-//                         <div>The model decided this was an arithmetic problem.</div>
-//                     )}
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Passage Context">
-//                     {releventNumbers.length ? (
-//                         <TextWithHighlight
-//                             text={input.passage}
-//                             highlights={releventNumbers.map((n) => {
-//                                 return {
-//                                     start: n.span[0],
-//                                     end: n.span[1],
-//                                     color: n.sign > 0 ? 'G6' : 'R6',
-//                                 };
-//                             })}
-//                         />
-//                     ) : (
-//                         <div>{input.passage}</div>
-//                     )}
-//                 </Output.SubSection>
-
-//                 <Output.SubSection title="Question">
-//                     <div>{input.question}</div>
-//                 </Output.SubSection>
-//             </>
-//         );
-//     }
-
-//     // payload matched no known viz
-//     throw new InvalidModelResponseError(model.id);
-// };

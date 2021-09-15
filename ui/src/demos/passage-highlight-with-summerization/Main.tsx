@@ -1,30 +1,20 @@
 import React from 'react';
-import Tabs from 'antd/es/tabs';
-import styled from 'styled-components';
 import {
-    SelectedModelCard,
     Output,
     Field,
-    Saliency,
     SelectExample,
-    SelectModelAndDescription,
     Share,
     Submit,
-    TaskDescription,
-    TaskTitle,
 } from '@allenai/tugboat/components';
 
 import { AppId } from '../../AppId';
-import { TaskDemo, Predict, Interpreters, Attackers } from '../../components';
+import { TaskDemo, Predict } from '../../components';
 import { config } from './config';
 import { Usage } from './Usage';
 import { Predictions } from './Predictions';
-import { Input, Prediction, getBasicAnswer, isWithTokenizedInput, Version } from './types';
-import { InterpreterData, DoubleGradInput, isDoubleInterpreterData } from '../../lib';
+import { Input, Prediction, Version } from './types';
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
-import PropTypes from 'prop-types';
-import ReactPaginate from 'react-paginate';
 
 const SingleFileAutoSubmit = () => {
     const toast = (innerHTML) => {
