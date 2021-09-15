@@ -1,6 +1,16 @@
 {
     "id": "bidaf-elmo",
     "pretrained_model_id": "rc-bidaf-elmo",
+    "qa_model_path": "",
+    "summarize_model_path": "",
     "similarity_model_path": "/app/allennlp_demo/common/similarity_models",
-    "similarity_model_weight": 1
+    "max_seq_length": 512,
+    "stride": 128,
+    "pad_on_right": true,
+    "start_weight": 0.5,
+    "nbest": 10,
+    "max_answer_length": 300,
+    "min_answer_length": 5,
+    "similarity_model_weight": 1,
+    "summerization_model": false
 }
