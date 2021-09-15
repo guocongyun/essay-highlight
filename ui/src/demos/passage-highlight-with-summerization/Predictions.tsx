@@ -144,8 +144,7 @@ const BasicPrediction = ({
             <Tabs>
                 {output.context.map((contexts, i) =>
                     <Tabs.TabPane tab={`${i}`} key={`${i}`}>
-                        <BasicAnswer output={output.answer[i]} />
-                        <Output.SubSection title="Passage Context" >
+                        <Output.SubSection title="Passage" >
                             {contexts.map((c, j) => (
                                 <div>
                                 {formatTokens(output.tag[i][j], c).map((token, k) => (
@@ -154,10 +153,10 @@ const BasicPrediction = ({
                                 </div>
                             ))}
                         </Output.SubSection>
-
                         <Output.SubSection title="Question">
                             <div>{output.question[0]}</div>
                         </Output.SubSection>
+                        <BasicAnswer output={output.answer[i]} />
                     </Tabs.TabPane>
                 )}
             </Tabs>
