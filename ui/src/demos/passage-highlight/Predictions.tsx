@@ -2,20 +2,11 @@ import React from 'react';
 import Tabs from 'antd/es/tabs';
 import { Output } from '@allenai/tugboat/components';
 import { Model } from '@allenai/tugboat/lib';
-import {
-    UnexpectedModelError,
-    UnexpectedOutputError,
-} from '@allenai/tugboat/error';
 import { DebugInfo } from '../../components';
-import { ModelId } from '../../lib';
 import {
     Input,
     Prediction,
     BiDAFPrediction,
-    TransformerQAPrediction,
-    isBiDAFPrediction,
-    isNAQANetPrediction,
-    isTransformerQAPrediction,
 } from './types';
 interface Props {
     input: Input;
@@ -42,18 +33,7 @@ const OutputByModel = ({
     output: Prediction;
     model: Model;
 }) => {
-    switch (model.id) {
-        case ModelId.Bidaf:
-        case ModelId.BidafELMO:
-        case ModelId.TransformerQA: {
-            if (!isBiDAFPrediction(output) && !isTransformerQAPrediction(output)) {
-                throw new UnexpectedOutputError(model.id);
-            }
-            return <BasicPrediction input={input} output={output} />;
-        }
-    }
-    // If we dont have any output throw.
-    throw new UnexpectedModelError(model.id);
+    return <BasicPrediction input={input} output={output} />;
 };
 
 const BasicAnswer = ({ output }: { output: any }) => {
@@ -69,7 +49,7 @@ const BasicPrediction = ({
     output,
 }: {
     input: Input;
-    output: TransformerQAPrediction | BiDAFPrediction;
+    output: BiDAFPrediction;
 }) => {
 
     return (

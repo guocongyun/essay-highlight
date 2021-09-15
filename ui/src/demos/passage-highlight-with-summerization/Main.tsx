@@ -10,7 +10,6 @@ import {
 import { AppId } from '../../AppId';
 import { TaskDemo, Predict } from '../../components';
 import { config } from './config';
-import { Usage } from './Usage';
 import { Predictions } from './Predictions';
 import { Input, Prediction, Version } from './types';
 import 'react-dropzone-uploader/dist/styles.css'
