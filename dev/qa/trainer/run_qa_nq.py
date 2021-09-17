@@ -41,63 +41,6 @@ import json
 #     j = json.loads(data.decode('utf-8'))
 #     print (type(j))
 
-def create_data(title, ques, ids, context, ans, ans_start, is_impossible):
-    data = {
-            "title":title,
-            "paragraphs":[
-                {
-                    "qas":[
-                        {
-                            "question":ques,
-                            "id":ids,
-                            "answers":[
-                                    {
-                                        "text":ans,
-                                        "answer_start":ans_start
-                                    }
-                                
-                            ],
-                            "is_impossible":is_impossible
-                        }
-                    ],
-                    "context":context
-                }
-            ]
-        }
-    return data
-
-raw_datasets = load_dataset("natural_questions", cache_dir="../../data/natural_questions")
-count = 0
-datas = []
-for idx, data in enumerate(raw_datasets["train"]):
-#     with open("./test2.json", "w+") as f:
-#         json.dump(data, f)
-
-    s, e = data["annotations"]["long_answer"][0]["start_token"], data["annotations"]["long_answer"][0]["end_token"]
-    ans_start = s-sum(data["document"]["tokens"]["is_html"][:s])
-    ne = e-s+ans_start
-    texts = []
-    for idx, t in enumerate(data["document"]["tokens"]["token"]):
-        if not data["document"]["tokens"]["is_html"][idx]: texts.append(t)
-    context = " ".join(texts)
-    ans = " ".join(texts[ans_start:ne])
-    ids = data["id"]
-    idx = idx
-    title = data["document"]["title"]
-    ques = data["question"]["text"]
-    is_impossible = True if e >= s else False
-    
-    data = create_data(title=title, ques=ques, ids=ids, context=context, ans=ans, ans_start=ans_start, is_impossible=is_impossible)
-    datas.append(data)
-    print(data)
-#     print(" ".join(context[ans_start:ne]))
-#     print("------")
-#     print(" ".join(data["document"]["tokens"]["token"][s:e]))
-    # count += 1
-    # if count > 2: exit()
-ds = datasets.from_dict({"data":datas})
-ds.save_to_disk("./test")
-exit()
 # sudo python3 -m torch.distributed.launch --nproc_per_node=4 --master_port 29523 run_qa.py
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
 
