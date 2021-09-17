@@ -1,0 +1,11 @@
+torch==1.9.0
+torchvision==0.10.0
+wandb
+scikit-learn
+transformers==4.8.0
+accelerate==0.3.0
+datasets==1.11.0
+tokenizers
+keybert
+apache_beam
+tqdm

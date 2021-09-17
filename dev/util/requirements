@@ -1,0 +1,12 @@
+sudo pip install wandb
+pip install torch torchvision -i  https://pypi.mirrors.ustc.edu.cn/simple
+pip install transformers==4.8.0
+pip install accelerate==0.3.0
+pip install -U scikit-learn
+pip3 install datasets==1.11.0
+pip install tensorboardX
+sudo pip install spacy
+pip install ./AIED_2021_TRMRC_code-main/models/roberta/en_core_web_sm-3.1.0.tar.gz 
+pip install keybert
+sudo pip install apache_beam
+nltk.download('punkt')
