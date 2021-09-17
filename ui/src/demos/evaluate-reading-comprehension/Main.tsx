@@ -53,7 +53,7 @@ const SingleFileAutoSubmit = () => {
 export const Main = () => {
     return (
         <TaskDemo ids={config.modelIds} taskId={config.taskId}>
-            <h3>Highlight report (via textual similarity)</h3>
+            <h3>Highlight Report</h3><h6>Text Similarity Model</h6>
             <SelectExample displayProp="question" placeholder="Select a Question…" />
             <SingleFileAutoSubmit/>
             <Predict<Input, Prediction>

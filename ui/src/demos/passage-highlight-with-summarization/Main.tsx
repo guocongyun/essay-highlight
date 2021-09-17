@@ -54,7 +54,7 @@ const SingleFileAutoSubmit = () => {
 export const Main = () => {
     return (
         <TaskDemo ids={config.modelIds} taskId={'rc'}>
-            <h3>Report Highlight (via question answering and summarization)</h3>
+            <h3>Report Highlight</h3><h6>Question Answering and Summarization Model</h6>
             <SelectExample displayProp="question" placeholder="Select a Question…" />
             <SingleFileAutoSubmit/>
             <Predict<Input, Prediction>
