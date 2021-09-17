@@ -14,7 +14,7 @@
     "prismjs": "^1.24.0"
   },
   "dependencies": {
-    "@allenai/eslint-config-varnish": "^1.0.4",
+    "@allenai/eslint-config-varnish": "^1.0.5",
     "@allenai/tugboat": "^2.0.3",
     "@allenai/varnish": "^2.0.19",
     "@allenai/varnish-react-router": "^2.0.2",
