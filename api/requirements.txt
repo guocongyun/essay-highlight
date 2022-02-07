@@ -1,7 +1,7 @@
 allennlp==2.5.0
 allennlp-models==2.5.0
 Flask==1.1.2
-pytest==6.2.3
+pytest==7.0.0
 datasets==1.11.0
 flask_cors==3.0.10
 sentence_transformers==2.0.0
